@@ -15,6 +15,8 @@ public class HeightmapVisiulizerAsync : MonoBehaviour
 {
     [SerializeField] private int seed;
     [SerializeField] private float scale;
+    [Range(0, 1)]
+    [SerializeField] private float weightOffset;
     [SerializeField] public float xMove;
     [SerializeField] public float yMove;
     [SerializeField] private int octaves;
@@ -22,13 +24,39 @@ public class HeightmapVisiulizerAsync : MonoBehaviour
     [SerializeField] private float lacunarity;
     [SerializeField] private bool showHeight = true;
     [SerializeField] private bool showGray;
-    [SerializeField] private AnimationCurve curve1;
-    [SerializeField] private AnimationCurve curve2;
-    [SerializeField] private float heightScalar = 1;
+    [System.Serializable]
+    public class CurveSettings
+    {
+        [Tooltip("Curve Function for Default terrain generation")]
+        public AnimationCurve curve1;
+        [Tooltip("Curve Function for Mountain generation")]
+        public AnimationCurve curve2;
+        // [Tooltip("Curve Function for bodies of water generation")]
+        // public AnimationCurve curve3;
+        [Tooltip("adds scalar to all heights")]
+        public float heightScalar;
+    }
+
+    [SerializeField]
+    private CurveSettings curveSettings;
+    
+    // [SerializeField] private float heightScalar = 1;
     [SerializeField] private Textures textures;
-    [SerializeField] private bool ShowSeeds;
-    [SerializeField] private float SeedHeight;
-    [SerializeField] private float SeedRad;
+    [System.Serializable]
+    public class VoronoiSeedSettings
+    {
+        [Tooltip("displays seeds as spheres on the map")]
+        public bool showSeeds;
+        [Tooltip("height of the spheres")]
+        public float seedHeight;
+        [Tooltip("radius of the spheres")]
+        public float seedRad;
+    }
+
+    [SerializeField]
+    private VoronoiSeedSettings voronoiSeedSettings;
+
+    [SerializeField] private bool debug;
     [System.Serializable]
     public class Textures
     {
@@ -53,7 +81,6 @@ public class HeightmapVisiulizerAsync : MonoBehaviour
     private static Dictionary<Vector3, Seed> seedCollection = new Dictionary<Vector3, Seed>();
     private static object _lock = new object();
     
-    
     public async void HeightVizWrapperFunction()
     {
         _heightmapGenerator = GetComponent<HeightmapGenerator>();
@@ -70,29 +97,35 @@ public class HeightmapVisiulizerAsync : MonoBehaviour
         Color32[] color32s = new Color32[n * n];
         float[,] mapMain = new float[n, n];
         float[,] weightMap = new float[n, n];
-    
+        curveSettings.curve1.preWrapMode = WrapMode.Default;
+        curveSettings.curve1.postWrapMode = WrapMode.Default;
+        curveSettings.curve2.preWrapMode = WrapMode.Default;
+        curveSettings.curve2.postWrapMode = WrapMode.Default;
+        float settingsHeightScalar = curveSettings.heightScalar;
+        
         //2d noise map generation
         Task<float[,]> taskMapMain = Task.Run(() => _heightmapGenerator.MapGenerator(n, n, scale, octaves,
             persistance, lacunarity, xMove * 1 / 100, yMove * 1 / 100, seed));
         mapMain = await taskMapMain;
         
         //curve function map
-        Task<float[,]> taskWeightMap = Task.Run(() => _heightmapGenerator.MapGenerator(n, n, 900, octaves,
+        Task<float[,]> taskWeightMap = Task.Run(() => _heightmapGenerator.MapGenerator(n, n, weightScale, octaves,
             persistance, lacunarity, xMove * 1 / 100, yMove * 1 / 100, seed));
         weightMap = await taskWeightMap;
         
         Dictionary<Vector3, Seed> nearSeeds = new Dictionary<Vector3, Seed>();
-        if(ShowSeeds)
-            nearSeeds = GetNearSeeds(chunkPos, 240, texture, SeedHeight, SeedRad, ShowSeeds);
+        if(voronoiSeedSettings.showSeeds)
+            nearSeeds = GetNearSeeds(chunkPos, 240, texture, voronoiSeedSettings.seedHeight, voronoiSeedSettings.seedRad, voronoiSeedSettings.showSeeds);
         else
         {
-            Task<Dictionary<Vector3, Seed>> taskSeed = Task.Run(() => GetNearSeeds(chunkPos, 240, texture, SeedHeight, SeedRad, ShowSeeds));
+            Task<Dictionary<Vector3, Seed>> taskSeed = Task.Run(() => GetNearSeeds(chunkPos, 240, texture, voronoiSeedSettings.seedHeight, voronoiSeedSettings.seedRad, voronoiSeedSettings.showSeeds));
             nearSeeds = await taskSeed;
         }
         
         //make it a texture
         Vector3[] newMeshHeight = new Vector3[n * n];
-        Task<Vector3[]> taskTexture = Task.Run((() => MakeTexture(chunkPos, vertices, mapMain, n, n, color32s, nearSeeds, texture, weightMap)));
+        Task<Vector3[]> taskTexture = Task.Run(() => MakeTexture(chunkPos, vertices, mapMain, n, n, color32s,
+            nearSeeds, texture, weightMap, settingsHeightScalar));
         newMeshHeight = await taskTexture;
 
         _meshFilter.mesh.vertices = newMeshHeight;
@@ -108,7 +141,8 @@ public class HeightmapVisiulizerAsync : MonoBehaviour
     }
 
     private Vector3[] MakeTexture(Vector3 chunkPosition, Vector3[] newHeight,
-        float[,] map, int height, int width, Color32[] colors, Dictionary<Vector3, Seed> nearSeeds, Textures terrainTexture, float[,] weightMap)
+        float[,] map, int height, int width, Color32[] colors, Dictionary<Vector3, Seed> nearSeeds,
+        Textures terrainTexture, float[,] weightMap, float settingsHeightScalar)
     {
         int k = 0;
         lock (_lock)
@@ -118,11 +152,11 @@ public class HeightmapVisiulizerAsync : MonoBehaviour
                 for (int j = 0; j < width; j++)
                 {
                     float vertex = map[i, j];
-                    float height1 = curve1.Evaluate(vertex) * heightScalar;
-                    float height2 = curve2.Evaluate(vertex) * heightScalar;
+                    float height1 = curveSettings.curve1.Evaluate(vertex);
+                    float height2 = curveSettings.curve2.Evaluate(vertex); 
                     if (showHeight)
                     {
-                        newHeight[k].y = CalculateHeight(height1, height2, weightMap[i, j]);
+                        newHeight[k].y = CalculateHeight(height1, height2, weightMap[i, j]) * settingsHeightScalar;
                         if (showGray)
                             colors[k] = Color.Lerp(Color.black, Color.white, weightMap[i, j]);
                         else
@@ -159,8 +193,19 @@ public class HeightmapVisiulizerAsync : MonoBehaviour
     //linear interpolation
     private float CalculateHeight(float height1, float height2, float weight)
     {
-        weight *= 2;
-        return (1 - weight) * height2 + weight * height1;
+        
+        if (weight > weightOffset)
+        {
+            weight -= weightOffset;
+            float res =  (1 - weight) * height1 + weight * height2;
+            return res;
+        }
+        else
+        {
+            
+            return height1;
+        }
+            
     }
     private Dictionary<Vector3, Seed> GetNearSeeds(Vector3 chunkPos, int chunkSize, Textures bioms, float height, float radius, bool showSeeds)
     {
@@ -214,6 +259,7 @@ public class HeightmapVisiulizerAsync : MonoBehaviour
         {
             Vector3 seedPos = new Vector3(seedIt.Value.pos.x, 0f, seedIt.Value.pos.y);
             float dist = Vector3.Distance(vertexPosGlobal, seedPos);
+            // float dist = MinkowskiDistance(vertexPosGlobal, seedPos, 3);
             if (dist < minDist)
             {
                 minDist = dist;
@@ -272,6 +318,14 @@ public class HeightmapVisiulizerAsync : MonoBehaviour
         }
 
         return closestSeed;
+    }
+
+    private float MinkowskiDistance(Vector3 a, Vector3 b, int p)
+    {
+        float xCords = Mathf.Pow((Mathf.Abs(a.x - b.x)), p);
+        float yCords = Mathf.Pow((Mathf.Abs(a.z - b.z)), p);
+
+        return Mathf.Pow((xCords + yCords), 1f / p);
     }
     private void generateSphere(Vector2 pos, float height, float radius)
     {

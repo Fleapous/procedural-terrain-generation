@@ -31,10 +31,12 @@ public class world_chunks : MonoBehaviour
     //for debuging on chunk generation
     public Dictionary<Vector2, ChunkColor> VisitedChunksColor = new Dictionary<Vector2, ChunkColor>();
     public List<ChunkColor> OldChunksColor = new List<ChunkColor>();
+    // public Transform parentTransform;
     
     private void Start()
     {
         chunksInViewDistance =  Mathf.RoundToInt(viewDistance / chunkSize);
+        // parentTransform = GetComponent<Transform>();
     }
     
     private void Update()
@@ -44,10 +46,11 @@ public class world_chunks : MonoBehaviour
 
     void UpdateChunks()
     {
-        Debug.Log("chunks");
+        // Debug.Log("chunks");
         Vector3 playerPos = playerPozition.position;
         int currentChunkX = Mathf.RoundToInt(playerPos.x / chunkSize);
         int currentChunkY = Mathf.RoundToInt(playerPos.z / chunkSize);
+        
         
         for (int yOffset = -chunksInViewDistance; yOffset <= chunksInViewDistance; yOffset++)
         {
@@ -120,6 +123,7 @@ public class world_chunks : MonoBehaviour
         var material = new Material(Shader.Find("Standard"));
         material.color = Color.red;
         renderer.material = material;
+        // sphere.transform.SetParent(parentTransform);
     }
 }
 
