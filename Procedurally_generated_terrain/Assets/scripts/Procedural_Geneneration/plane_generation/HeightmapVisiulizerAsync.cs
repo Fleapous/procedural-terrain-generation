@@ -15,6 +15,7 @@ public class HeightmapVisiulizerAsync : MonoBehaviour
 {
     [SerializeField] private int seed;
     [SerializeField] private float scale;
+    [SerializeField] private float weightScale;
     [Range(0, 1)]
     [SerializeField] private float weightOffset;
     [SerializeField] public float xMove;
@@ -197,8 +198,8 @@ public class HeightmapVisiulizerAsync : MonoBehaviour
         if (weight > weightOffset)
         {
             weight -= weightOffset;
-            float res =  (1 - weight) * height1 + weight * height2;
-            return res;
+            return (1 - weight) * height1 + weight * height2;
+            
         }
         else
         {
