@@ -14,10 +14,6 @@ using UnityEngine.Serialization;
 public class HeightmapVisiulizerAsync : MonoBehaviour
 {
     [SerializeField] private int seed;
-    [SerializeField] private float scale;
-    [SerializeField] private float weightScale;
-    [Range(0, 1)]
-    [SerializeField] private float weightOffset;
     [SerializeField] public float xMove;
     [SerializeField] public float yMove;
     [SerializeField] private int octaves;
@@ -30,10 +26,18 @@ public class HeightmapVisiulizerAsync : MonoBehaviour
     {
         [Tooltip("Curve Function for Default terrain generation")]
         public AnimationCurve curve1;
+        public float curve1Scale;
+
         [Tooltip("Curve Function for Mountain generation")]
         public AnimationCurve curve2;
-        // [Tooltip("Curve Function for bodies of water generation")]
-        // public AnimationCurve curve3;
+        public float curve2Scale;
+        [Range(0, 1)] public float curve2Offset;
+        
+        [Tooltip("Curve Function for bodies of water generation")]
+        public AnimationCurve curve3;
+        public float curve3Scale;
+        [Range(0, 1)] public float curve3Offset;
+        
         [Tooltip("adds scalar to all heights")]
         public float heightScalar;
     }
@@ -89,7 +93,6 @@ public class HeightmapVisiulizerAsync : MonoBehaviour
         _meshRenderer = GetComponent<MeshRenderer>();
         Textures texture = textures;
         
-        
         Vector3 chunkPos = GetComponent<Transform>().position;
         int size = _meshFilter.sharedMesh.vertices.Length;
         Vector3[] vertices = _meshFilter.mesh.vertices;
@@ -97,23 +100,41 @@ public class HeightmapVisiulizerAsync : MonoBehaviour
         Texture2D newTexture = new Texture2D(n, n);
         Color32[] color32s = new Color32[n * n];
         float[,] mapMain = new float[n, n];
-        float[,] weightMap = new float[n, n];
+        float[,] curve2WeightMap = new float[n, n];
+        float[,] curve3WeightMap = new float[n, n];
+        
+        //modes for curve functions
         curveSettings.curve1.preWrapMode = WrapMode.Default;
         curveSettings.curve1.postWrapMode = WrapMode.Default;
         curveSettings.curve2.preWrapMode = WrapMode.Default;
         curveSettings.curve2.postWrapMode = WrapMode.Default;
+        curveSettings.curve3.preWrapMode = WrapMode.Default;
+        curveSettings.curve3.postWrapMode = WrapMode.Default;
+        
+        //init serialized fields
         float settingsHeightScalar = curveSettings.heightScalar;
+        float settingsCurve1Scale = curveSettings.curve1Scale;
+        float settingsCurve2Scale = curveSettings.curve2Scale;
+        float settingsCurve2Offset = curveSettings.curve2Offset;
+        float settingsCurve3Scale = curveSettings.curve3Scale;
+        float settingsCurve3Offset = curveSettings.curve3Offset;
         
-        //2d noise map generation
-        Task<float[,]> taskMapMain = Task.Run(() => _heightmapGenerator.MapGenerator(n, n, scale, octaves,
+        //2d noise map 
+        Task<float[,]> taskMapMain = Task.Run(() => _heightmapGenerator.MapGenerator(n, n, settingsCurve1Scale, octaves,
             persistance, lacunarity, xMove * 1 / 100, yMove * 1 / 100, seed));
+ 
+        //curve2 weight map
+        Task<float[,]> taskCurve2WeightMap = Task.Run(() => _heightmapGenerator.MapGenerator(n, n, settingsCurve2Scale, octaves,
+            persistance, lacunarity, xMove * 1 / 100, yMove * 1 / 100, 98));
+        
+        //curve3 weight map
+        Task<float[,]> taskCurve3WeightMap = Task.Run(() => _heightmapGenerator.MapGenerator(n, n, settingsCurve3Scale, octaves,
+            persistance, lacunarity, xMove * 1 / 100, yMove * 1 / 100, 100));
+
         mapMain = await taskMapMain;
-        
-        //curve function map
-        Task<float[,]> taskWeightMap = Task.Run(() => _heightmapGenerator.MapGenerator(n, n, weightScale, octaves,
-            persistance, lacunarity, xMove * 1 / 100, yMove * 1 / 100, seed));
-        weightMap = await taskWeightMap;
-        
+        curve2WeightMap = await taskCurve2WeightMap;
+        curve3WeightMap = await taskCurve3WeightMap;
+        //biome 
         Dictionary<Vector3, Seed> nearSeeds = new Dictionary<Vector3, Seed>();
         if(voronoiSeedSettings.showSeeds)
             nearSeeds = GetNearSeeds(chunkPos, 240, texture, voronoiSeedSettings.seedHeight, voronoiSeedSettings.seedRad, voronoiSeedSettings.showSeeds);
@@ -126,7 +147,10 @@ public class HeightmapVisiulizerAsync : MonoBehaviour
         //make it a texture
         Vector3[] newMeshHeight = new Vector3[n * n];
         Task<Vector3[]> taskTexture = Task.Run(() => MakeTexture(chunkPos, vertices, mapMain, n, n, color32s,
-            nearSeeds, texture, weightMap, settingsHeightScalar));
+            nearSeeds, texture,
+            curve2WeightMap, settingsCurve2Offset,
+            curve3WeightMap, settingsCurve3Offset
+            ,settingsHeightScalar));
         newMeshHeight = await taskTexture;
 
         _meshFilter.mesh.vertices = newMeshHeight;
@@ -142,8 +166,10 @@ public class HeightmapVisiulizerAsync : MonoBehaviour
     }
 
     private Vector3[] MakeTexture(Vector3 chunkPosition, Vector3[] newHeight,
-        float[,] map, int height, int width, Color32[] colors, Dictionary<Vector3, Seed> nearSeeds,
-        Textures terrainTexture, float[,] weightMap, float settingsHeightScalar)
+        float[,] map, int height, int width, Color32[] colors, Dictionary<Vector3, Seed> nearSeeds, Textures terrainTexture,
+        float[,] curve2WeightMap, float curve2Offset,
+        float[,] curve3WeightMap, float curve3Offset,
+        float settingsHeightScalar)
     {
         int k = 0;
         lock (_lock)
@@ -154,12 +180,15 @@ public class HeightmapVisiulizerAsync : MonoBehaviour
                 {
                     float vertex = map[i, j];
                     float height1 = curveSettings.curve1.Evaluate(vertex);
-                    float height2 = curveSettings.curve2.Evaluate(vertex); 
+                    float height2 = curveSettings.curve2.Evaluate(vertex);
+                    float height3 = curveSettings.curve3.Evaluate(vertex);
                     if (showHeight)
                     {
-                        newHeight[k].y = CalculateHeight(height1, height2, weightMap[i, j]) * settingsHeightScalar;
+                        newHeight[k].y = CalculateHeight(height1, 
+                            height2, curve2WeightMap[i, j], curve2Offset,
+                            height3, curve3WeightMap[i, j], curve3Offset) * settingsHeightScalar;
                         if (showGray)
-                            colors[k] = Color.Lerp(Color.black, Color.white, weightMap[i, j]);
+                            colors[k] = Color.Lerp(Color.black, Color.white, curve3WeightMap[i, j]);
                         else
                             colors[k] = FindClosestSeed(nearSeeds, chunkPosition, new Vector3(j, 0f, i));
                         k++;
@@ -192,18 +221,26 @@ public class HeightmapVisiulizerAsync : MonoBehaviour
         return Color.white;
     }
     //linear interpolation
-    private float CalculateHeight(float height1, float height2, float weight)
+    private float CalculateHeight(
+        float height1,
+        float height2, float curve2Weight, float curve2Offset,
+        float height3, float curve3Weight, float curve3Offset)
     {
-        
-        if (weight > weightOffset)
+        //problem when both are over offsets
+        if (curve2Weight > curve2Offset)
         {
-            weight -= weightOffset;
-            return (1 - weight) * height1 + weight * height2;
+            curve2Weight -= curve2Offset;
+            return (1 - curve2Weight) * height1 + curve2Weight * height2;
+        }
+        if(curve3Weight > curve3Offset)
+        {
             
+            curve3Weight -= curve3Offset;
+            // float avgHeight12 = (1 - curve2Weight) * height1 + curve2Weight * height2;
+            return (1 - curve3Weight) * height1 + curve3Weight * height3;
         }
         else
         {
-            
             return height1;
         }
             
