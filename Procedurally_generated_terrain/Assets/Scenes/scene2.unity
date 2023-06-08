@@ -196,7 +196,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7632831560152620522, guid: d9a38515dcecd418596cfacf595fdfb2, type: 3}
       propertyPath: heightOffset
-      value: 10
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 7632831560152620522, guid: d9a38515dcecd418596cfacf595fdfb2, type: 3}
       propertyPath: ShowPlane

@@ -85,6 +85,9 @@ public class HeightmapVisiulizerAsync : MonoBehaviour
     private MeshRenderer _meshRenderer;
     private static Dictionary<Vector3, Seed> seedCollection = new Dictionary<Vector3, Seed>();
     private static object _lock = new object();
+    //storing prev weights
+    private float prevweight2 = 0;
+    private float prevweight3 = 0;
     
     public async void HeightVizWrapperFunction()
     {
@@ -188,7 +191,7 @@ public class HeightmapVisiulizerAsync : MonoBehaviour
                             height2, curve2WeightMap[i, j], curve2Offset,
                             height3, curve3WeightMap[i, j], curve3Offset) * settingsHeightScalar;
                         if (showGray)
-                            colors[k] = Color.Lerp(Color.black, Color.white, curve3WeightMap[i, j]);
+                            colors[k] = Color.Lerp(Color.blue, Color.magenta, curve3WeightMap[i, j]);
                         else
                             colors[k] = FindClosestSeed(nearSeeds, chunkPosition, new Vector3(j, 0f, i));
                         k++;
@@ -226,33 +229,63 @@ public class HeightmapVisiulizerAsync : MonoBehaviour
         float height2, float curve2Weight, float curve2Offset,
         float height3, float curve3Weight, float curve3Offset)
     {
-        //problem when both are over offsets
-        if (curve2Weight > curve2Offset)
-        {
-            curve2Weight -= curve2Offset;
-            return (1 - curve2Weight) * height1 + curve2Weight * height2;
-        }
-        if(curve3Weight > curve3Offset)
-        {
-            
-            curve3Weight -= curve3Offset;
-            // float avgHeight12 = (1 - curve2Weight) * height1 + curve2Weight * height2;
-            return (1 - curve3Weight) * height1 + curve3Weight * height3;
-        }
-        else
-        {
-            return height1;
-        }
+        // if (curve2Weight > curve2Offset)
+        // {
+        //     curve2Weight -= curve2Offset;
+        //     prevweight2 = curve2Weight;
+        //     
+        //     float multiplier = Mathf.Pow(2f, curve2Weight);
+        //     multiplier *= 2;
+        //     return ((1 - curve2Weight) * height1 + curve2Weight * height2) * multiplier;
+        // }
+        // if(curve3Weight > curve3Offset)
+        // {
+        //     curve3Weight -= curve3Offset;
+        //     prevweight3 = curve3Weight;
+        //     float multiplier = Mathf.Pow(2f, curve2Weight);
+        //     multiplier *= 4;
+        //     return ((1 - curve3Weight) * height1 + curve3Weight * height3) * multiplier;
+        // }
+        // else
+        // {
+        //     return height1;
+        // }
+        
+        // Calculate the sum of weights
+        // Apply offset to curve2Weight if it exceeds curve2Offset
+        
+        
+        // if (curve2Weight > curve2Offset)
+        // {
+        //     float excessWeight1 = curve2Weight - curve2Offset;
+        //     curve2Weight += excessWeight1 * excessWeight1;
+        // }
+        // else
+        //     curve2Weight = 0.1f;
+        //
+        // // Apply offset to curve3Weight if it exceeds curve3Offset
+        // if (curve3Weight > curve3Offset)
+        // {
+        //     // float excessWeight2 = curve3Weight - curve3Offset;
+        //     // curve3Weight += excessWeight2 * excessWeight2;
+        //     curve
+        // }
+        // else
+        //     curve3Weight = 0.1f;
+
+        // Calculate the sum of weights
+
+        
+        float interpolatedHeight = height1 * 1f + height2 * curve2Weight + height3 * curve3Weight;
+
+        return interpolatedHeight;
+        
             
     }
     private Dictionary<Vector3, Seed> GetNearSeeds(Vector3 chunkPos, int chunkSize, Textures bioms, float height, float radius, bool showSeeds)
     {
         lock (_lock)
         {
-            //creat the random object
-            // int seed = Environment.TickCount * Thread.CurrentThread.ManagedThreadId;
-            // System.Random random = new System.Random(seed);
-            
             //init the dict
             Dictionary<Vector3, Seed> closeSeedsDict = new Dictionary<Vector3, Seed>();
 
@@ -272,9 +305,6 @@ public class HeightmapVisiulizerAsync : MonoBehaviour
                         System.Random random = new System.Random(seed);
                         Seed newSeed;
                         newSeed.pos = new Vector2(random.Next(0, 241) + viewedChunk.x, random.Next(0, 241) + viewedChunk.z);
-                        // newSeed.pos = new Vector2(Random.Range(0, 241) + viewedChunk.x, Random.Range(0, 241) + viewedChunk.y);
-                        
-                        // newSeed.color = new Color32((byte)random.Next(256), (byte)random.Next(256), (byte)random.Next(256), 255);
                         newSeed.color = SeedColor(bioms, random.Next(0, 101));
                         seedCollection.Add(viewedChunk, newSeed);
                         closeSeedsDict.Add(viewedChunk, newSeed);
