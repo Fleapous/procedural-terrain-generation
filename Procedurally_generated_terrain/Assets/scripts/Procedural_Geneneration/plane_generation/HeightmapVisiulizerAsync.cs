@@ -187,11 +187,12 @@ public class HeightmapVisiulizerAsync : MonoBehaviour
                     float height3 = curveSettings.curve3.Evaluate(vertex);
                     if (showHeight)
                     {
-                        newHeight[k].y = CalculateHeight(height1, 
+                        newHeight[k].y = CalculateHeight(
+                            height1, map[i, j],
                             height2, curve2WeightMap[i, j], curve2Offset,
                             height3, curve3WeightMap[i, j], curve3Offset) * settingsHeightScalar;
                         if (showGray)
-                            colors[k] = Color.Lerp(Color.blue, Color.magenta, curve3WeightMap[i, j]);
+                            colors[k] = Color.Lerp(Color.blue, Color.magenta, map[i, j]);
                         else
                             colors[k] = FindClosestSeed(nearSeeds, chunkPosition, new Vector3(j, 0f, i));
                         k++;
@@ -208,10 +209,15 @@ public class HeightmapVisiulizerAsync : MonoBehaviour
                 }
             }
         }
-
+        
 
         return newHeight;
     }
+
+    // private Vector3[] SmoothEdges(Vector3[] heights)
+    // {
+    //     
+    // }
     
     private Color SeedColor(Textures textures, int heightNormal)
     {
@@ -225,7 +231,7 @@ public class HeightmapVisiulizerAsync : MonoBehaviour
     }
     //linear interpolation
     private float CalculateHeight(
-        float height1,
+        float height1, float curve1Weight,
         float height2, float curve2Weight, float curve2Offset,
         float height3, float curve3Weight, float curve3Offset)
     {
@@ -234,53 +240,97 @@ public class HeightmapVisiulizerAsync : MonoBehaviour
         //     curve2Weight -= curve2Offset;
         //     prevweight2 = curve2Weight;
         //     
-        //     float multiplier = Mathf.Pow(2f, curve2Weight);
-        //     multiplier *= 2;
-        //     return ((1 - curve2Weight) * height1 + curve2Weight * height2) * multiplier;
+        //     // float multiplier = Mathf.Pow(2f, curve2Weight);
+        //     // multiplier *= 2;
+        //     return (1 - curve2Weight) * height1 + curve2Weight * height2;
         // }
         // if(curve3Weight > curve3Offset)
         // {
         //     curve3Weight -= curve3Offset;
         //     prevweight3 = curve3Weight;
-        //     float multiplier = Mathf.Pow(2f, curve2Weight);
-        //     multiplier *= 4;
-        //     return ((1 - curve3Weight) * height1 + curve3Weight * height3) * multiplier;
+        //     // float multiplier = Mathf.Pow(2f, curve2Weight);
+        //     // multiplier *= 4;
+        //     return (1 - curve3Weight) * height1 + curve3Weight * height3;
         // }
         // else
         // {
         //     return height1;
         // }
         
-        // Calculate the sum of weights
-        // Apply offset to curve2Weight if it exceeds curve2Offset
-        
-        
-        // if (curve2Weight > curve2Offset)
+        // var curve2w = curve2Weight;
+        // var curve3w = curve3Weight;
+        // //normalize weights
+        // float totalWeight = curve1Weight + curve2Weight + curve3Weight;
+        // if (totalWeight > 0)
         // {
-        //     float excessWeight1 = curve2Weight - curve2Offset;
-        //     curve2Weight += excessWeight1 * excessWeight1;
+        //     curve1Weight /= totalWeight;
+        //     curve2Weight /= totalWeight;
+        //     curve3Weight /= totalWeight;
+        // }
+
+        
+        
+        // if (curve2w > curve2Offset && curve3w > curve3Offset)
+        // {
+        //     curve1Weight = 0;
+        //     curve2Weight = 0.5f;
+        //     curve3Weight = 0.5f;
         // }
         // else
-        //     curve2Weight = 0.1f;
-        //
-        // // Apply offset to curve3Weight if it exceeds curve3Offset
-        // if (curve3Weight > curve3Offset)
         // {
-        //     // float excessWeight2 = curve3Weight - curve3Offset;
-        //     // curve3Weight += excessWeight2 * excessWeight2;
-        //     curve
+        //     if (curve2w > curve2Offset)
+        //     {
+        //         curve1Weight = 0.1f;
+        //         curve2Weight = 0.9f;
+        //         curve3Weight = 0;
+        //     }
+        //     else if(curve3w > curve3Offset)
+        //     {
+        //         curve1Weight = 0.1f;
+        //         curve2Weight = 0;
+        //         curve3Weight = 0.9f;
+        //     }
+        //     else
+        //     {
+        //         curve1Weight = 0.8f;
+        //         curve2Weight = 0.1f;
+        //         curve3Weight = 0.1f;
+        //     }
+        //     
         // }
-        // else
-        //     curve3Weight = 0.1f;
 
-        // Calculate the sum of weights
+        var weight1 = 1f;
+        var weight2 = ExponentialApproach(curve2Weight, curve2Offset);
+        var weight3 = ExponentialApproach(curve3Weight, curve3Offset);
 
+        var sumWeights = weight1 + weight2 + weight3;
+        weight1 /= sumWeights;
+        weight2 /= sumWeights;
+        weight3 /= sumWeights;
         
-        float interpolatedHeight = height1 * 1f + height2 * curve2Weight + height3 * curve3Weight;
+        float finalHeight = height1 * weight1 + height2 * weight2 + height3 * weight3;
+        return finalHeight;
+    }
+    
+    private float ExponentialApproach(float weight, float threshold)
+    {
+        // Ensure weight and threshold are within the valid range of 0 to 1
+        weight = Math.Max(0, Math.Min(1, weight));
+        threshold = Math.Max(0, Math.Min(1, threshold));
 
-        return interpolatedHeight;
-        
-            
+        // Check if weight passes the threshold
+        if (weight >= threshold)
+        {
+            return 1;
+        }
+        else
+        {
+            // Adjust the exponent calculation to control the steepness of the approach
+            float scalingFactor = 0.34f; // Example: Adjust the scaling factor for a less steep approach
+            float exponent = (float)(Math.Log(0.1) / Math.Log(threshold) * scalingFactor); // Adjust the exponent calculation
+            float result = (float)Math.Pow(weight, exponent); // Apply exponential decay with the modified exponent
+            return result;
+        }
     }
     private Dictionary<Vector3, Seed> GetNearSeeds(Vector3 chunkPos, int chunkSize, Textures bioms, float height, float radius, bool showSeeds)
     {

@@ -50,8 +50,8 @@ MonoBehaviour:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
-        time: 0.050926466
-        value: 0.0031744596
+        time: 0
+        value: 0
         inSlope: 0
         outSlope: 0
         tangentMode: 0
@@ -59,37 +59,10 @@ MonoBehaviour:
         inWeight: 0
         outWeight: 0
       - serializedVersion: 3
-        time: 0.40553647
-        value: 8.899514
-        inSlope: 5.953012
-        outSlope: 5.953012
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0.33333334
-        outWeight: 0.14854501
-      - serializedVersion: 3
-        time: 0.5520884
-        value: 18.274422
-        inSlope: 20.019297
-        outSlope: 20.019297
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0.33333334
-        outWeight: 1
-      - serializedVersion: 3
-        time: 0.7627445
-        value: 30.804768
-        inSlope: 0.0107142
-        outSlope: 0.0107142
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0.06501947
-        outWeight: 0
-      - serializedVersion: 3
-        time: 0.9501136
-        value: 60.436554
-        inSlope: 0
-        outSlope: 0
+        time: 0.9725401
+        value: 22.681875
+        inSlope: 2
+        outSlope: 2
         tangentMode: 0
         weightedMode: 0
         inWeight: 0
@@ -98,7 +71,7 @@ MonoBehaviour:
       m_PostInfinity: 2
       m_RotationOrder: 4
     curve2Scale: 900
-    curve2Offset: 0.505
+    curve2Offset: 0.851
     curve3:
       serializedVersion: 2
       m_Curve:
@@ -112,8 +85,8 @@ MonoBehaviour:
         inWeight: 0.33333334
         outWeight: 1
       - serializedVersion: 3
-        time: 0.28874812
-        value: -13.1706505
+        time: 0.27355072
+        value: -0.37556267
         inSlope: -7.0137997
         outSlope: -7.0137997
         tangentMode: 0
@@ -121,8 +94,8 @@ MonoBehaviour:
         inWeight: 0
         outWeight: 0.37495646
       - serializedVersion: 3
-        time: 0.5390262
-        value: -45.27067
+        time: 0.42251068
+        value: -11.471633
         inSlope: -20.113161
         outSlope: -20.113161
         tangentMode: 0
@@ -130,8 +103,8 @@ MonoBehaviour:
         inWeight: 0.14987163
         outWeight: 0.26691723
       - serializedVersion: 3
-        time: 0.9808324
-        value: -49.308384
+        time: 0.8643169
+        value: -15.509345
         inSlope: -0.1108105
         outSlope: -0.1108105
         tangentMode: 0
@@ -142,8 +115,8 @@ MonoBehaviour:
       m_PostInfinity: 2
       m_RotationOrder: 4
     curve3Scale: 900
-    curve3Offset: 0.465
-    heightScalar: 4
+    curve3Offset: 0.583
+    heightScalar: 20
   textures:
     texture1: {r: 0.18039216, g: 0.28235295, b: 0.7529412, a: 0}
     texture2: {r: 0.16862746, g: 0.83137256, b: 0.28627452, a: 0}
@@ -157,6 +130,20 @@ MonoBehaviour:
     seedRad: 0
   debug: 0
   neighbouringChunkSeedPos: []
+--- !u!114 &2279773446260695796
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5273828482307404772}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bcf728fa0570549ddbcb2687d6394cc3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  normalLength: 0.54
+  normalColor: {r: 1, g: 0, b: 0, a: 1}
 --- !u!1001 &2008076410168659314
 PrefabInstance:
   m_ObjectHideFlags: 0
