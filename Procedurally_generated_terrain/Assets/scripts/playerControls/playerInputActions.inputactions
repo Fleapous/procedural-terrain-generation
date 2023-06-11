@@ -1,0 +1,71 @@
+{
+    "name": "playerInputActions",
+    "maps": [
+        {
+            "name": "Player",
+            "id": "ffe3acd2-f1b4-49af-b945-711990d77c16",
+            "actions": [
+                {
+                    "name": "Flight",
+                    "type": "Button",
+                    "id": "6f263054-5340-443c-92f0-13dc6fb337c3",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "MultiTap"
+                },
+                {
+                    "name": "Boost",
+                    "type": "Button",
+                    "id": "40b66f13-b40e-4a4c-bb61-19f50b440ffd",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": ""
+                },
+                {
+                    "name": "Look",
+                    "type": "Value",
+                    "id": "b55819de-a7c2-4dab-ab92-9f2ca16f39c5",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": ""
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "28eb8f2e-e582-477f-b900-388a9dfb9b07",
+                    "path": "<Keyboard>/space",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Flight",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "63afd2f2-9e71-40dc-be9e-00abbf241339",
+                    "path": "<Keyboard>/leftShift",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Boost",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "9d9e2309-3363-4f33-9969-4d834157d79f",
+                    "path": "<Mouse>/position",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Look",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        }
+    ],
+    "controlSchemes": []
+}

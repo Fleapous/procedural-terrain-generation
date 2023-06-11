@@ -463,6 +463,14 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 620998498340192672, guid: 537fe9d8936d04e6ba93fda88595a915, type: 3}
+      propertyPath: viewDistance
+      value: 20000
+      objectReference: {fileID: 0}
+    - target: {fileID: 620998498340192672, guid: 537fe9d8936d04e6ba93fda88595a915, type: 3}
+      propertyPath: chunkScale
+      value: 15
+      objectReference: {fileID: 0}
     - target: {fileID: 620998498340192679, guid: 537fe9d8936d04e6ba93fda88595a915, type: 3}
       propertyPath: m_Name
       value: PlayerTest

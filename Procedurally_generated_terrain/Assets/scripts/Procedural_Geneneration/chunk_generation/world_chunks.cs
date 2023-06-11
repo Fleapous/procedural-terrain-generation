@@ -14,6 +14,7 @@ public class world_chunks : MonoBehaviour
     [SerializeField] private float noiseOffset;
     [SerializeField] private Transform playerPozition;
     [SerializeField] private GameObject ChunkPrefab;
+    [SerializeField] private float chunkScale;
     
     [Header("Biom Generation Visualization tools")]
         [SerializeField] private bool BiomVisualization;
@@ -69,7 +70,7 @@ public class world_chunks : MonoBehaviour
                     {
                         //adding the new chunk to the visited chunks
                         GameObject chunkInst = Instantiate(ChunkPrefab);
-                        Chunk tmp = new Chunk(viewedChunk, chunkSize, chunkInst, noiseOffset);
+                        Chunk tmp = new Chunk(viewedChunk, chunkSize, chunkInst, noiseOffset, chunkScale);
                         VisitedChunks.Add(viewedChunk, tmp);
                         OldChunks.Add(tmp);
                         // tmp.PickRandomPos();
@@ -181,17 +182,17 @@ public class Chunk
     private GameObject chunkInst;
     // public Vector2 SeedPos;
     // public List<Vector2> NeighbouringChunkSeedPos;
-    public Chunk(Vector2 cord, int size, GameObject chunkPrefab, float noiseOffset)
+    public Chunk(Vector2 cord, int size, GameObject chunkPrefab, float noiseOffset, float scale)
     {
         LocalChunkPos = cord;
-        GlobalChunkPos = cord * size;
+        GlobalChunkPos = cord * (size * scale);
         Vector3 position = new Vector3(GlobalChunkPos.x, 0, GlobalChunkPos.y);
 
         HeightmapVisiulizerAsync heightMapVisiulizer = chunkPrefab.GetComponent<HeightmapVisiulizerAsync>();
-        heightMapVisiulizer.xMove = position.x * noiseOffset;
-        heightMapVisiulizer.yMove = position.z * noiseOffset;
+        heightMapVisiulizer.xMove = (position.x / scale) * noiseOffset ;
+        heightMapVisiulizer.yMove = (position.z / scale) * noiseOffset ;
         chunkPrefab.transform.position = position;
-        chunkPrefab.transform.localScale = Vector3.one;
+        chunkPrefab.transform.localScale = Vector3.one * scale;
         chunkInst = chunkPrefab;
     }
     
