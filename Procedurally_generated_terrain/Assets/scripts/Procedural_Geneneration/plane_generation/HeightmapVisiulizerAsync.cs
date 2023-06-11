@@ -102,7 +102,7 @@ public class HeightmapVisiulizerAsync : MonoBehaviour
         int size = _meshFilter.sharedMesh.vertices.Length;
         Vector3[] vertices = _meshFilter.mesh.vertices;
         int n = (int)Mathf.Sqrt(size);
-        Texture2D newTexture = new Texture2D(n, n);
+        // Texture2D newTexture = new Texture2D(n, n);
         Color32[] color32s = new Color32[n * n];
         float[,] mapMain = new float[n, n];
         float[,] curve2WeightMap = new float[n, n];
@@ -162,13 +162,10 @@ public class HeightmapVisiulizerAsync : MonoBehaviour
         _meshFilter.mesh.vertices = newMeshHeight;
         _meshFilter.mesh.RecalculateNormals();
         _meshFilter.mesh.RecalculateBounds();
-        if (newTexture)
-        {
-            newTexture.SetPixels32(color32s);
-            newTexture.Apply();
-            _meshRenderer.material.mainTexture = newTexture;
-        }
-        
+        var tmp = new Texture2D(n, n);
+        tmp.SetPixels32(color32s);
+        tmp.Apply();
+        _meshRenderer.material.mainTexture = tmp;
     }
 
     private Vector3[] MakeTexture(Vector3 chunkPosition, Vector3[] newHeight,
