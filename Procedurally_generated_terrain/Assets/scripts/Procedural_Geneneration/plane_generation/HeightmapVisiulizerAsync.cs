@@ -37,6 +37,8 @@ public class HeightmapVisiulizerAsync : MonoBehaviour
         public AnimationCurve curve3;
         public float curve3Scale;
         [Range(0, 1)] public float curve3Offset;
+
+        [Tooltip("Amplifies the train")] public float amplificationNumber;
         
         [Tooltip("adds scalar to all heights")]
         public float heightScalar;
@@ -105,6 +107,7 @@ public class HeightmapVisiulizerAsync : MonoBehaviour
         float[,] mapMain = new float[n, n];
         float[,] curve2WeightMap = new float[n, n];
         float[,] curve3WeightMap = new float[n, n];
+        float amplificationNumber = curveSettings.amplificationNumber;
         
         //modes for curve functions
         curveSettings.curve1.preWrapMode = WrapMode.Default;
@@ -153,7 +156,7 @@ public class HeightmapVisiulizerAsync : MonoBehaviour
             nearSeeds, texture,
             curve2WeightMap, settingsCurve2Offset,
             curve3WeightMap, settingsCurve3Offset
-            ,settingsHeightScalar));
+            ,settingsHeightScalar, amplificationNumber));
         newMeshHeight = await taskTexture;
 
         _meshFilter.mesh.vertices = newMeshHeight;
@@ -172,7 +175,7 @@ public class HeightmapVisiulizerAsync : MonoBehaviour
         float[,] map, int height, int width, Color32[] colors, Dictionary<Vector3, Seed> nearSeeds, Textures terrainTexture,
         float[,] curve2WeightMap, float curve2Offset,
         float[,] curve3WeightMap, float curve3Offset,
-        float settingsHeightScalar)
+        float settingsHeightScalar, float amplificationNumber)
     {
         int k = 0;
         lock (_lock)
@@ -189,10 +192,20 @@ public class HeightmapVisiulizerAsync : MonoBehaviour
                     {
                         newHeight[k].y = CalculateHeight(
                             height1, map[i, j],
-                            height2, curve2WeightMap[i, j], curve2Offset,
-                            height3, curve3WeightMap[i, j], curve3Offset) * settingsHeightScalar;
+                            height2, curve2WeightMap[i, j],
+                            height3, curve3WeightMap[i, j], amplificationNumber) * settingsHeightScalar;
                         if (showGray)
-                            colors[k] = Color.Lerp(Color.blue, Color.magenta, map[i, j]);
+                        {
+                            // colors[k] = Color.Lerp(Color.blue, Color.magenta, curve3WeightMap[i, j]);
+                            if(curve3WeightMap[i, j] > curve3Offset && curve2WeightMap[i, j] > curve2Offset)
+                                colors[k] = Color.magenta;
+                            else if (curve3WeightMap[i, j] > curve3Offset)
+                                colors[k] = Color.blue;
+                            else if (curve2WeightMap[i, j] > curve2Offset)
+                                colors[k] = Color.red;
+                            else
+                                colors[k] = Color.Lerp(Color.black, Color.white, map[i, j]);
+                        }
                         else
                             colors[k] = FindClosestSeed(nearSeeds, chunkPosition, new Vector3(j, 0f, i));
                         k++;
@@ -213,11 +226,6 @@ public class HeightmapVisiulizerAsync : MonoBehaviour
 
         return newHeight;
     }
-
-    // private Vector3[] SmoothEdges(Vector3[] heights)
-    // {
-    //     
-    // }
     
     private Color SeedColor(Textures textures, int heightNormal)
     {
@@ -229,108 +237,33 @@ public class HeightmapVisiulizerAsync : MonoBehaviour
             return textures.texture3;
         return Color.white;
     }
-    //linear interpolation
+    
     private float CalculateHeight(
         float height1, float curve1Weight,
-        float height2, float curve2Weight, float curve2Offset,
-        float height3, float curve3Weight, float curve3Offset)
+        float height2, float curve2Weight,
+        float height3, float curve3Weight, float amplificationScale)
     {
-        // if (curve2Weight > curve2Offset)
-        // {
-        //     curve2Weight -= curve2Offset;
-        //     prevweight2 = curve2Weight;
-        //     
-        //     // float multiplier = Mathf.Pow(2f, curve2Weight);
-        //     // multiplier *= 2;
-        //     return (1 - curve2Weight) * height1 + curve2Weight * height2;
-        // }
-        // if(curve3Weight > curve3Offset)
-        // {
-        //     curve3Weight -= curve3Offset;
-        //     prevweight3 = curve3Weight;
-        //     // float multiplier = Mathf.Pow(2f, curve2Weight);
-        //     // multiplier *= 4;
-        //     return (1 - curve3Weight) * height1 + curve3Weight * height3;
-        // }
-        // else
-        // {
-        //     return height1;
-        // }
         
-        // var curve2w = curve2Weight;
-        // var curve3w = curve3Weight;
-        // //normalize weights
-        // float totalWeight = curve1Weight + curve2Weight + curve3Weight;
-        // if (totalWeight > 0)
-        // {
-        //     curve1Weight /= totalWeight;
-        //     curve2Weight /= totalWeight;
-        //     curve3Weight /= totalWeight;
-        // }
-
+        float weight2 = AmplifyAndNormalize(curve2Weight, amplificationScale);
+        float weight3 = AmplifyAndNormalize(curve3Weight, amplificationScale);
+        float weight1 = curve1Weight;
         
-        
-        // if (curve2w > curve2Offset && curve3w > curve3Offset)
-        // {
-        //     curve1Weight = 0;
-        //     curve2Weight = 0.5f;
-        //     curve3Weight = 0.5f;
-        // }
-        // else
-        // {
-        //     if (curve2w > curve2Offset)
-        //     {
-        //         curve1Weight = 0.1f;
-        //         curve2Weight = 0.9f;
-        //         curve3Weight = 0;
-        //     }
-        //     else if(curve3w > curve3Offset)
-        //     {
-        //         curve1Weight = 0.1f;
-        //         curve2Weight = 0;
-        //         curve3Weight = 0.9f;
-        //     }
-        //     else
-        //     {
-        //         curve1Weight = 0.8f;
-        //         curve2Weight = 0.1f;
-        //         curve3Weight = 0.1f;
-        //     }
-        //     
-        // }
-
-        var weight1 = 1f;
-        var weight2 = ExponentialApproach(curve2Weight, curve2Offset);
-        var weight3 = ExponentialApproach(curve3Weight, curve3Offset);
-
-        var sumWeights = weight1 + weight2 + weight3;
+        // Normalize weights
+        float sumWeights = weight1 + weight2 + weight3;
         weight1 /= sumWeights;
         weight2 /= sumWeights;
         weight3 /= sumWeights;
-        
+
+        // Interpolate heights using exponential weights
         float finalHeight = height1 * weight1 + height2 * weight2 + height3 * weight3;
         return finalHeight;
     }
     
-    private float ExponentialApproach(float weight, float threshold)
+    private float AmplifyAndNormalize(float value, float power)
     {
-        // Ensure weight and threshold are within the valid range of 0 to 1
-        weight = Math.Max(0, Math.Min(1, weight));
-        threshold = Math.Max(0, Math.Min(1, threshold));
-
-        // Check if weight passes the threshold
-        if (weight >= threshold)
-        {
-            return 1;
-        }
-        else
-        {
-            // Adjust the exponent calculation to control the steepness of the approach
-            float scalingFactor = 0.34f; // Example: Adjust the scaling factor for a less steep approach
-            float exponent = (float)(Math.Log(0.1) / Math.Log(threshold) * scalingFactor); // Adjust the exponent calculation
-            float result = (float)Math.Pow(weight, exponent); // Apply exponential decay with the modified exponent
-            return result;
-        }
+        float amplifiedNum = (float)Math.Pow(value, power);  // Amplify the input value exponentially with the specified power
+        float normalizedNum = (amplifiedNum - 0) / (1 - 0);  // Normalize the amplified number to the range [0, 1]
+        return normalizedNum;
     }
     private Dictionary<Vector3, Seed> GetNearSeeds(Vector3 chunkPos, int chunkSize, Textures bioms, float height, float radius, bool showSeeds)
     {
