@@ -39,9 +39,6 @@ public class HeightmapGenerator : MonoBehaviour
                 //octaves
                 for (int k = 0; k < octaves; k++)
                 {
-                    // float X = (float)i / scale * frequency + octaveOffsets[k].x;
-                    // float Y = (float)j / scale * frequency + octaveOffsets[k].y;
-                    
                     float x = (j - halfWidth + octaveOffsets[k].x) / scale * frequency;
                     float y = (i - halfHeight + octaveOffsets[k].y) / scale * frequency;
                 
@@ -51,12 +48,6 @@ public class HeightmapGenerator : MonoBehaviour
                     amplitude *= persistance;
                     frequency *= lacunarity;
                 }
-                //for normalization
-                // if (noiseHeight > maxFloat)
-                //     maxFloat = noiseHeight;
-                // else if (noiseHeight < minFloat)
-                //     minFloat = noiseHeight;
-                
                 //adding the value to map
                 map[i, j] = noiseHeight;
             }
