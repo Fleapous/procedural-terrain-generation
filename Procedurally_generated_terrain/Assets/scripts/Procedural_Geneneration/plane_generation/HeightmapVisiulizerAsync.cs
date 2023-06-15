@@ -20,7 +20,7 @@ public class HeightmapVisiulizerAsync : MonoBehaviour
     [SerializeField] private float persistance;
     [SerializeField] private float lacunarity;
     [SerializeField] private bool showHeight = true;
-    [SerializeField] private bool showGray;
+    [FormerlySerializedAs("showGray")] [SerializeField] private bool ColorDebug;
     [System.Serializable]
     public class CurveSettings
     {
@@ -46,9 +46,12 @@ public class HeightmapVisiulizerAsync : MonoBehaviour
 
     [SerializeField]
     private CurveSettings curveSettings;
-    
+
+    [SerializeField]
+    private TerrainGraphics terrainGraphics;
+
     // [SerializeField] private float heightScalar = 1;
-    [SerializeField] private Textures textures;
+    [FormerlySerializedAs("biomtypes")] [FormerlySerializedAs("textures")] [SerializeField] private BiomeTypes biomeTypes;
     [System.Serializable]
     public class VoronoiSeedSettings
     {
@@ -65,7 +68,7 @@ public class HeightmapVisiulizerAsync : MonoBehaviour
 
     [SerializeField] private bool debug;
     [System.Serializable]
-    public class Textures
+    public class BiomeTypes
     {
         public Color texture1;
         public Color texture2;
@@ -96,7 +99,7 @@ public class HeightmapVisiulizerAsync : MonoBehaviour
         _heightmapGenerator = GetComponent<HeightmapGenerator>();
         _meshFilter = GetComponent<MeshFilter>();
         _meshRenderer = GetComponent<MeshRenderer>();
-        Textures texture = textures;
+        BiomeTypes biomeType = biomeTypes;
         
         Vector3 chunkPos = GetComponent<Transform>().position;
         int size = _meshFilter.sharedMesh.vertices.Length;
@@ -143,17 +146,17 @@ public class HeightmapVisiulizerAsync : MonoBehaviour
         //biome 
         Dictionary<Vector3, Seed> nearSeeds = new Dictionary<Vector3, Seed>();
         if(voronoiSeedSettings.showSeeds)
-            nearSeeds = GetNearSeeds(chunkPos, 240, texture, voronoiSeedSettings.seedHeight, voronoiSeedSettings.seedRad, voronoiSeedSettings.showSeeds);
+            nearSeeds = GetNearSeeds(chunkPos, 240, biomeType, voronoiSeedSettings.seedHeight, voronoiSeedSettings.seedRad, voronoiSeedSettings.showSeeds);
         else
         {
-            Task<Dictionary<Vector3, Seed>> taskSeed = Task.Run(() => GetNearSeeds(chunkPos, 240, texture, voronoiSeedSettings.seedHeight, voronoiSeedSettings.seedRad, voronoiSeedSettings.showSeeds));
+            Task<Dictionary<Vector3, Seed>> taskSeed = Task.Run(() => GetNearSeeds(chunkPos, 240, biomeType, voronoiSeedSettings.seedHeight, voronoiSeedSettings.seedRad, voronoiSeedSettings.showSeeds));
             nearSeeds = await taskSeed;
         }
         
         //make it a texture
         Vector3[] newMeshHeight = new Vector3[n * n];
         Task<Vector3[]> taskTexture = Task.Run(() => MakeTexture(chunkPos, vertices, mapMain, n, n, color32s,
-            nearSeeds, texture,
+            nearSeeds, biomeType,
             curve2WeightMap, settingsCurve2Offset,
             curve3WeightMap, settingsCurve3Offset
             ,settingsHeightScalar, amplificationNumber));
@@ -166,10 +169,11 @@ public class HeightmapVisiulizerAsync : MonoBehaviour
         tmp.SetPixels32(color32s);
         tmp.Apply();
         _meshRenderer.material.mainTexture = tmp;
+        
     }
 
     private Vector3[] MakeTexture(Vector3 chunkPosition, Vector3[] newHeight,
-        float[,] map, int height, int width, Color32[] colors, Dictionary<Vector3, Seed> nearSeeds, Textures terrainTexture,
+        float[,] map, int height, int width, Color32[] colors, Dictionary<Vector3, Seed> nearSeeds, BiomeTypes terrainBiomeType,
         float[,] curve2WeightMap, float curve2Offset,
         float[,] curve3WeightMap, float curve3Offset,
         float settingsHeightScalar, float amplificationNumber)
@@ -191,7 +195,7 @@ public class HeightmapVisiulizerAsync : MonoBehaviour
                             height1, map[i, j],
                             height2, curve2WeightMap[i, j],
                             height3, curve3WeightMap[i, j], amplificationNumber) * settingsHeightScalar;
-                        if (showGray)
+                        if (ColorDebug)
                         {
                             // colors[k] = Color.Lerp(Color.blue, Color.magenta, curve3WeightMap[i, j]);
                             if(curve3WeightMap[i, j] > curve3Offset && curve2WeightMap[i, j] > curve2Offset)
@@ -202,15 +206,16 @@ public class HeightmapVisiulizerAsync : MonoBehaviour
                                 colors[k] = Color.red;
                             else
                                 colors[k] = Color.Lerp(Color.black, Color.white, map[i, j]);
+                        } else
+                        {
+                            colors[k] = terrainGraphics.Evaluate(newHeight[k].y);
                         }
-                        else
-                            colors[k] = FindClosestSeed(nearSeeds, chunkPosition, new Vector3(j, 0f, i));
                         k++;
                     }
                     else
                     {
                         newHeight[k].y = 0;
-                        if (showGray)
+                        if (ColorDebug)
                             colors[k] = Color.Lerp(Color.black, Color.white, vertex);
                         else
                             colors[k] = FindClosestSeed(nearSeeds, chunkPosition, new Vector3(j, 0f, i));
@@ -224,14 +229,14 @@ public class HeightmapVisiulizerAsync : MonoBehaviour
         return newHeight;
     }
     
-    private Color SeedColor(Textures textures, int heightNormal)
+    private Color SeedColor(BiomeTypes biomeTypes, int heightNormal)
     {
-        if (textures.texture1Range.x <= heightNormal && heightNormal <= textures.texture1Range.y)
-            return textures.texture1;
-        if (textures.texture2Range.x < heightNormal && heightNormal < textures.texture2Range.y)
-            return textures.texture2;
-        if (textures.texture3Range.x <= heightNormal && heightNormal <= textures.texture3Range.y)
-            return textures.texture3;
+        if (biomeTypes.texture1Range.x <= heightNormal && heightNormal <= biomeTypes.texture1Range.y)
+            return biomeTypes.texture1;
+        if (biomeTypes.texture2Range.x < heightNormal && heightNormal < biomeTypes.texture2Range.y)
+            return biomeTypes.texture2;
+        if (biomeTypes.texture3Range.x <= heightNormal && heightNormal <= biomeTypes.texture3Range.y)
+            return biomeTypes.texture3;
         return Color.white;
     }
     
@@ -262,7 +267,7 @@ public class HeightmapVisiulizerAsync : MonoBehaviour
         float normalizedNum = (amplifiedNum - 0) / (1 - 0);  // Normalize the amplified number to the range [0, 1]
         return normalizedNum;
     }
-    private Dictionary<Vector3, Seed> GetNearSeeds(Vector3 chunkPos, int chunkSize, Textures bioms, float height, float radius, bool showSeeds)
+    private Dictionary<Vector3, Seed> GetNearSeeds(Vector3 chunkPos, int chunkSize, BiomeTypes bioms, float height, float radius, bool showSeeds)
     {
         lock (_lock)
         {
@@ -317,7 +322,7 @@ public class HeightmapVisiulizerAsync : MonoBehaviour
         return closestSeedCol;
     }
     //old method not good :(
-    private Seed GetClosestSeed(Vector3 chunkPos, Vector3 vertexPosRelative, float chunkSize, int chunkInViewDist, Textures bioms)
+    private Seed GetClosestSeed(Vector3 chunkPos, Vector3 vertexPosRelative, float chunkSize, int chunkInViewDist, BiomeTypes bioms)
     {
         int seed = Environment.TickCount * Thread.CurrentThread.ManagedThreadId;
         System.Random random = new System.Random(seed);

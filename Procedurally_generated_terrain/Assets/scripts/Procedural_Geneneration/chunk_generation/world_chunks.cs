@@ -77,7 +77,7 @@ public class world_chunks : MonoBehaviour
                         // tmp.GetNeighbouringChunks(viewedChunk, VisitedChunks);
                     }
                 }
-                if (BiomVisualization)
+                if (BiomVisualization)//old and not useful____________
                 {
                     if (VisitedChunksColor.ContainsKey(viewedChunk))
                     {
