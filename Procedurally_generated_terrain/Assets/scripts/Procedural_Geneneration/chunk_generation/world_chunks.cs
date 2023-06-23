@@ -200,7 +200,7 @@ public class Chunk
     {
         Vector2 Pos2d = new Vector2(playerPos.x, playerPos.z);
         float distance = (Pos2d - GlobalChunkPos).magnitude;
-        chunkInst.SetActive(!(distance > viewDistance));
+        // chunkInst.SetActive(!(distance > viewDistance));
     }
     
     // public void PickRandomPos()

@@ -46,6 +46,11 @@ MonoBehaviour:
       m_PostInfinity: 2
       m_RotationOrder: 4
     curve1Scale: 900
+    layer1Settings:
+      octaves: 5
+      persistance: 0.29
+      lacunarity: 2.75
+      amplificationConstant: 0
     curve2:
       serializedVersion: 2
       m_Curve:
@@ -106,8 +111,13 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    curve2Scale: 900
+    curve2Scale: 2700
     curve2Offset: 0.5
+    layer2Settings:
+      octaves: 8
+      persistance: 0.32
+      lacunarity: 1.5
+      amplificationConstant: 4
     curve3:
       serializedVersion: 2
       m_Curve:
@@ -152,7 +162,12 @@ MonoBehaviour:
       m_RotationOrder: 4
     curve3Scale: 1800
     curve3Offset: 0.442
-    amplificationNumber: 6
+    layer3Settings:
+      octaves: 3
+      persistance: 0.2
+      lacunarity: 1.5
+      amplificationConstant: 3
+    amplificationNumber: 4
     heightScalar: 20
   terrainGraphics:
     mountain:
