@@ -5,16 +5,21 @@ using UnityEngine;
 public class HeightMapEditor : Editor
 {
     private SerializedProperty heightMapSettingsProp;
-
+    private SerializedProperty debugProp;
+    private SerializedProperty seedProb;
     private void OnEnable()
     {
         heightMapSettingsProp = serializedObject.FindProperty("heightMapSettings");
+        debugProp = serializedObject.FindProperty("debug");
+        seedProb = serializedObject.FindProperty("seed");
     }
 
     public override void OnInspectorGUI()
     {
         serializedObject.Update();
 
+        EditorGUILayout.PropertyField(debugProp);
+        EditorGUILayout.PropertyField(seedProb);
         EditorGUILayout.PropertyField(heightMapSettingsProp);
 
         HeightMap heightMap = target as HeightMap;
@@ -43,12 +48,14 @@ public class HeightMapEditor : Editor
                     SerializedProperty layerSettingProp = layerSettingsProp.GetArrayElementAtIndex(i);
 
                     EditorGUILayout.LabelField("Layer " + i.ToString(), EditorStyles.boldLabel);
+                    EditorGUILayout.PropertyField(layerSettingProp.FindPropertyRelative("enable"));
                     EditorGUILayout.PropertyField(layerSettingProp.FindPropertyRelative("animationCurve"));
                     EditorGUILayout.PropertyField(layerSettingProp.FindPropertyRelative("scale"));
                     EditorGUILayout.PropertyField(layerSettingProp.FindPropertyRelative("octaves"));
                     EditorGUILayout.PropertyField(layerSettingProp.FindPropertyRelative("persistence"));
                     EditorGUILayout.PropertyField(layerSettingProp.FindPropertyRelative("lacunarity"));
                     EditorGUILayout.PropertyField(layerSettingProp.FindPropertyRelative("amplificationConstant"));
+                    EditorGUILayout.PropertyField(layerSettingProp.FindPropertyRelative("heightScalar"));
 
                     EditorGUILayout.Space();
                 }

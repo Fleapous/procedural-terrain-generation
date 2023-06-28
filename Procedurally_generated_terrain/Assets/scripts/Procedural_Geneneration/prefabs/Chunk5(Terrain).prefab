@@ -1,5 +1,62 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &1193783004
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1193783005}
+  - component: {fileID: 1193783006}
+  - component: {fileID: 1193783007}
+  m_Layer: 0
+  m_Name: ChunkTrigger
+  m_TagString: ChunkTrigger
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1193783005
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1193783004}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 5602686731511830876}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &1193783006
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1193783004}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 1000, y: 10, z: 1000}
+  m_Center: {x: 500, y: 0, z: 500}
+--- !u!114 &1193783007
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1193783004}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4a17032223db44e6a8cc83aeffdc2866, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &308391073894566097
 GameObject:
   m_ObjectHideFlags: 0
@@ -29,7 +86,8 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
+  m_Children:
+  - {fileID: 1193783005}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -89,3 +147,34 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e79a7818a937d44a0b0fca4a201a8c95, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  debug: 1
+  seed: 45
+  heightMapSettings:
+    numberOfLayers: 2
+    layerSettings:
+    - enable: 0
+      animationCurve:
+        serializedVersion: 2
+        m_Curve: []
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+      scale: 418.9
+      octaves: 6
+      persistence: 0.13
+      lacunarity: 2.77
+      amplificationConstant: 1
+      heightScalar: 5.69
+    - enable: 0
+      animationCurve:
+        serializedVersion: 2
+        m_Curve: []
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+      scale: 138.7
+      octaves: 9
+      persistence: 0.05
+      lacunarity: 6.1
+      amplificationConstant: 3.53
+      heightScalar: 3.2
