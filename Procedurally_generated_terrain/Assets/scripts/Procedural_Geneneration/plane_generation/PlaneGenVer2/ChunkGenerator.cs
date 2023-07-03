@@ -5,6 +5,8 @@ using UnityEngine;
 
 public class ChunkGenerator : MonoBehaviour
 {
+    public GameObject terrainChunk;
+    
     private Terrain terrain;
     private Transform locationTerrain;
     private Transform locationRayCaster;
@@ -20,8 +22,10 @@ public class ChunkGenerator : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+        
         if (other.CompareTag("Player"))
         {
+            Debug.Log("TriggerEnter ID: " + GetInstanceID());
             GenerateChunks();
         }
     }
@@ -38,17 +42,21 @@ public class ChunkGenerator : MonoBehaviour
         {
             for (int yOffset = -1; yOffset <= 1; yOffset++)
             {
+                if (xOffset == 0 && yOffset == 0)
+                {
+                    k++;
+                    continue;
+                }
                 Vector2 neighborPos = gridPosition + new Vector2(xOffset, yOffset);
                 Vector2 worldPos = position + new Vector2(xOffset * scale.x, yOffset * scale.z);
                 if (rayCaster.PositionAndRayCast(k, new Vector3(locationRayCaster.transform.position.x + scale.x/2, -100, locationRayCaster.transform.position.z  + scale.z/2), scale.x))  
                 {
-                    Debug.Log("there is a terrain on: " + neighborPos + " " + worldPos);
+                    // Debug.Log("there is a terrain on: " + neighborPos + " " + worldPos);
                 }
-                
-                
-                // Debug.Log(neighborPos + " " + worldPos);
-                // Debug.Log("next Chunk");
-
+                else
+                {
+                    GameObject chunk = Instantiate(terrainChunk, new Vector3(worldPos.x, position1.y, worldPos.y), Quaternion.identity);
+                }
                 k++;
             }
         }

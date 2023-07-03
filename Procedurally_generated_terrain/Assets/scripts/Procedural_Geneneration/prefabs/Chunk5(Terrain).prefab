@@ -26,7 +26,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1193783004}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 24, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 1439679578}
@@ -44,7 +44,7 @@ BoxCollider:
   m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 1000, y: 10, z: 1000}
+  m_Size: {x: 900, y: 1, z: 900}
   m_Center: {x: 500, y: 0, z: 500}
 --- !u!114 &1193783007
 MonoBehaviour:
@@ -58,6 +58,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4a17032223db44e6a8cc83aeffdc2866, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  terrainChunk: {fileID: 308391073894566097}
 --- !u!1 &1439679577
 GameObject:
   m_ObjectHideFlags: 0
@@ -86,7 +87,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1439679577}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 500, y: -20, z: 500}
+  m_LocalPosition: {x: 500, y: -100, z: 500}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1193783005}
@@ -166,6 +167,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bed8e1eaaac004f968a9458e1b322991, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  rayTrack: 0
+  debugSphere: {fileID: 5921996153333490428, guid: c1153dcdbf8434bfc9d0f04c61b397cb, type: 3}
+  sphereheight: 100
 --- !u!1 &308391073894566097
 GameObject:
   m_ObjectHideFlags: 0
