@@ -25,7 +25,7 @@ public class ChunkGenerator : MonoBehaviour
         
         if (other.CompareTag("Player"))
         {
-            Debug.Log("TriggerEnter ID: " + GetInstanceID());
+            // Debug.Log("TriggerEnter ID: " + GetInstanceID());
             GenerateChunks();
         }
     }
@@ -56,6 +56,9 @@ public class ChunkGenerator : MonoBehaviour
                 else
                 {
                     GameObject chunk = Instantiate(terrainChunk, new Vector3(worldPos.x, position1.y, worldPos.y), Quaternion.identity);
+                    HeightMap script = chunk.GetComponent<HeightMap>();
+                    script.xMove = scale.x * neighborPos.x;
+                    script.yMove = scale.x * neighborPos.y;
                 }
                 k++;
             }

@@ -13,6 +13,11 @@ public class HeightMap : MonoBehaviour
     [Tooltip("settings for heightMap")]
     [SerializeField] public HeightMapSettings heightMapSettings;
 
+    
+    public float xMove;
+    
+    public float yMove;
+    
     private Terrain terrain;
     private void OnValidate()
     {
@@ -34,6 +39,7 @@ public class HeightMap : MonoBehaviour
     {
         if (!debug)
         {
+            Debug.Log(xMove + " " + yMove);
             GenerateHeightMap();
         }
     }
@@ -45,11 +51,11 @@ public class HeightMap : MonoBehaviour
         int resolution = terrain.terrainData.heightmapResolution;
         float[,] finalMap = new float[resolution, resolution];
         Task[] tasks = new Task[numberOfLayers];
-
+        
         for (int i = 0; i < numberOfLayers; i++)
         {
             int index = i;
-            tasks[i] = Task.Run(() => heightMapSettings.layerSettings[index].GenerateHeightMapValues(resolution, 0, 0, seed));
+            tasks[i] = Task.Run(() => heightMapSettings.layerSettings[index].GenerateHeightMapValues(resolution, xMove, yMove, seed));
         }
         await Task.WhenAll(tasks);
         

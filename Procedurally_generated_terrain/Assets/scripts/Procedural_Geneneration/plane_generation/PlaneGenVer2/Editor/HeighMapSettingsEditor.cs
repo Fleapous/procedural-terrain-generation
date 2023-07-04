@@ -7,11 +7,15 @@ public class HeightMapEditor : Editor
     private SerializedProperty heightMapSettingsProp;
     private SerializedProperty debugProp;
     private SerializedProperty seedProb;
+    private SerializedProperty xMove;
+    private SerializedProperty yMove;
     private void OnEnable()
     {
         heightMapSettingsProp = serializedObject.FindProperty("heightMapSettings");
         debugProp = serializedObject.FindProperty("debug");
         seedProb = serializedObject.FindProperty("seed");
+        xMove = serializedObject.FindProperty("xMove");
+        yMove = serializedObject.FindProperty("yMove");
     }
 
     public override void OnInspectorGUI()
@@ -20,6 +24,8 @@ public class HeightMapEditor : Editor
 
         EditorGUILayout.PropertyField(debugProp);
         EditorGUILayout.PropertyField(seedProb);
+        EditorGUILayout.PropertyField(xMove);
+        EditorGUILayout.PropertyField(yMove);
         EditorGUILayout.PropertyField(heightMapSettingsProp);
 
         HeightMap heightMap = target as HeightMap;
