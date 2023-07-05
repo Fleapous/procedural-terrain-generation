@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5cf0eed7b16e84363ab7057494485ddd, type: 3}
+  m_Name: HeightMapSettingsTest
+  m_EditorClassIdentifier: 
+  seed: 42
+  xMove: 0
+  yMove: 0
+  layerSettings:
+  - enable: 1
+    animationCurve:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 0
+      m_PostInfinity: 0
+      m_RotationOrder: 0
+    scale: 300
+    octaves: 5
+    persistence: 0.65
+    lacunarity: 1.17
+    amplificationConstant: 2.91
+    heightScalar: 12.04

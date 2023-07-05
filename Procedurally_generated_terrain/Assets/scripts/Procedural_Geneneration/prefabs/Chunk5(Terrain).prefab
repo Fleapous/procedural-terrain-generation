@@ -187,7 +187,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 4294967295
+  m_StaticEditorFlags: 0
   m_IsActive: 1
 --- !u!4 &5602686731511830876
 Transform:
@@ -260,36 +260,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e79a7818a937d44a0b0fca4a201a8c95, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  debug: 1
-  seed: 45
-  heightMapSettings:
-    numberOfLayers: 2
-    layerSettings:
-    - enable: 1
-      animationCurve:
-        serializedVersion: 2
-        m_Curve: []
-        m_PreInfinity: 2
-        m_PostInfinity: 2
-        m_RotationOrder: 4
-      scale: 418.9
-      octaves: 6
-      persistence: 0.13
-      lacunarity: 2.77
-      amplificationConstant: 1
-      heightScalar: 5.69
-    - enable: 1
-      animationCurve:
-        serializedVersion: 2
-        m_Curve: []
-        m_PreInfinity: 2
-        m_PostInfinity: 2
-        m_RotationOrder: 4
-      scale: 138.7
-      octaves: 9
-      persistence: 0.05
-      lacunarity: 6.1
-      amplificationConstant: 3.53
-      heightScalar: 3.2
-  xMove: 0
-  yMove: 0
+  debug: 0
+  heightMapSettings: {fileID: 11400000, guid: d31e1ef0bb1d1454d95e901cc4ed44d6, type: 2}

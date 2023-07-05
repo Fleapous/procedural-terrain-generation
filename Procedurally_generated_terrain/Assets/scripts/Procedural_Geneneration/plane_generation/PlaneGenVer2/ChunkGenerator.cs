@@ -11,6 +11,7 @@ public class ChunkGenerator : MonoBehaviour
     private Transform locationTerrain;
     private Transform locationRayCaster;
     private RayCaster rayCaster;
+    private HeightMapSettings heightMapSettingsOg;
     private void Start()
     {
         var parent = transform.parent;
@@ -18,6 +19,7 @@ public class ChunkGenerator : MonoBehaviour
         locationTerrain = parent.GetComponent<Transform>();
         locationRayCaster = GetComponentInChildren<Transform>();
         rayCaster = GetComponentInChildren<RayCaster>();
+        heightMapSettingsOg = GetComponentInParent<HeightMap>().heightMapSettings;
     }
 
     private void OnTriggerEnter(Collider other)
@@ -55,10 +57,12 @@ public class ChunkGenerator : MonoBehaviour
                 }
                 else
                 {
+                    HeightMapSettings heightMapSettings = ScriptableObject.CreateInstance<HeightMapSettings>();
+                    heightMapSettings = heightMapSettingsOg.Copy(scale.x * neighborPos.x, scale.x * neighborPos.y);
+                    
                     GameObject chunk = Instantiate(terrainChunk, new Vector3(worldPos.x, position1.y, worldPos.y), Quaternion.identity);
                     HeightMap script = chunk.GetComponent<HeightMap>();
-                    script.xMove = scale.x * neighborPos.x;
-                    script.yMove = scale.x * neighborPos.y;
+                    script.heightMapSettings = heightMapSettings;
                 }
                 k++;
             }

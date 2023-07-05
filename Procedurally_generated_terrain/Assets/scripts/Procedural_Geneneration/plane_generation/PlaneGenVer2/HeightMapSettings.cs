@@ -1,15 +1,45 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using UnityEditor;
 using UnityEngine;
 
-[System.Serializable]
-public class HeightMapSettings
+[CreateAssetMenu(fileName = "HeightMapSettings", menuName = "Custom/HeightMapSettings")]
+public class HeightMapSettings : ScriptableObject
 {
-    [Range(1, 10)]
-    public int numberOfLayers;
+    [Tooltip("seed of the map")]
+    public int seed;
+    public float xMove;
+    public float yMove;
     public LayerSettings[] layerSettings;
+    
+    public HeightMapSettings Copy(float newXMove, float newYMove)
+    {
+        HeightMapSettings copy = Instantiate(this);
+
+        copy.xMove = newXMove;
+        copy.yMove = newYMove;
+
+        copy.layerSettings = new LayerSettings[layerSettings.Length];
+        for (int i = 0; i < layerSettings.Length; i++)
+        {
+            LayerSettings originalLayer = layerSettings[i];
+            LayerSettings copyLayer = new LayerSettings
+            {
+                enable = originalLayer.enable,
+                animationCurve = new AnimationCurve(originalLayer.animationCurve.keys),
+                scale = originalLayer.scale,
+                octaves = originalLayer.octaves,
+                persistence = originalLayer.persistence,
+                lacunarity = originalLayer.lacunarity,
+                amplificationConstant = originalLayer.amplificationConstant,
+                heightScalar = originalLayer.heightScalar,
+                layerMap = originalLayer.layerMap.Clone() as float[,]
+            };
+
+            copy.layerSettings[i] = copyLayer;
+        }
+
+        return copy;
+    }
+
 }
 
 [System.Serializable]
@@ -32,7 +62,9 @@ public class LayerSettings
     [Tooltip("HeightScalar of noise map")] 
     public float heightScalar;
     
-    [NonSerialized] public float[,] layerMap;
+    [SerializeField]
+    public float[,] layerMap;
+
     public void GenerateHeightMapValues(int size, float xMove, float yMove, int seed)
     {
         var map = new float[size, size];
@@ -85,5 +117,4 @@ public class LayerSettings
         //height map that normalized
         layerMap = mapNormalized;
     }
-    
 }

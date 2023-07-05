@@ -8,16 +8,8 @@ public class HeightMap : MonoBehaviour
 {
     [Tooltip("Executes script in OnValidate")]
     [SerializeField] private bool debug;
-    [Tooltip("Seed of the map")]
-    [SerializeField] private int seed;
     [Tooltip("settings for heightMap")]
     [SerializeField] public HeightMapSettings heightMapSettings;
-
-    
-    public float xMove;
-    
-    public float yMove;
-    
     private Terrain terrain;
     private void OnValidate()
     {
@@ -25,9 +17,9 @@ public class HeightMap : MonoBehaviour
         if (heightMapSettings == null)
             heightMapSettings = new HeightMapSettings();
 
-        // Initialize layerSettings array with the specified numberOfLayers
-        if (heightMapSettings.layerSettings == null || heightMapSettings.layerSettings.Length != heightMapSettings.numberOfLayers)
-            heightMapSettings.layerSettings = new LayerSettings[heightMapSettings.numberOfLayers];
+        // // Initialize layerSettings array with the specified numberOfLayers
+        // if (heightMapSettings.layerSettings == null || heightMapSettings.layerSettings.Length != heightMapSettings.layerSettings.)
+        //     heightMapSettings.layerSettings = new LayerSettings[heightMapSettings.numberOfLayers];
         
         if (debug)
         {
@@ -39,7 +31,8 @@ public class HeightMap : MonoBehaviour
     {
         if (!debug)
         {
-            Debug.Log(xMove + " " + yMove);
+            Debug.Log($"instance: {GetInstanceID()}, heighmap settings: {heightMapSettings.xMove} {heightMapSettings.yMove} {heightMapSettings.layerSettings.Length}");
+            // Debug.Log(heightMapSettings.xMove + " " + heightMapSettings.yMove);
             GenerateHeightMap();
         }
     }
@@ -47,7 +40,7 @@ public class HeightMap : MonoBehaviour
     public async void GenerateHeightMap()
     {
         terrain = GetComponent<Terrain>();
-        int numberOfLayers = heightMapSettings.numberOfLayers;
+        int numberOfLayers = heightMapSettings.layerSettings.Length;
         int resolution = terrain.terrainData.heightmapResolution;
         float[,] finalMap = new float[resolution, resolution];
         Task[] tasks = new Task[numberOfLayers];
@@ -55,7 +48,11 @@ public class HeightMap : MonoBehaviour
         for (int i = 0; i < numberOfLayers; i++)
         {
             int index = i;
-            tasks[i] = Task.Run(() => heightMapSettings.layerSettings[index].GenerateHeightMapValues(resolution, xMove, yMove, seed));
+            tasks[i] = Task.Run(() => heightMapSettings.layerSettings[index].GenerateHeightMapValues(
+                resolution,
+                heightMapSettings.xMove,
+                heightMapSettings.yMove, 
+                heightMapSettings.seed));
         }
         await Task.WhenAll(tasks);
         
