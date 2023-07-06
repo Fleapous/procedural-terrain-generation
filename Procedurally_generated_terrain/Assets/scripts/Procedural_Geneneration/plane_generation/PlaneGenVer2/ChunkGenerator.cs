@@ -68,8 +68,9 @@ public class ChunkGenerator : MonoBehaviour
 
     private void InstantiateNewChunk(Vector3 scale, Vector2 neighborPos, Vector2 worldPos, Vector3 position1)
     {
+        Vector2 offsetVector = neighborPos * (terrainDataOg.heightmapResolution - 1);
         HeightMapSettings heightMapSettings = ScriptableObject.CreateInstance<HeightMapSettings>();
-        heightMapSettings = heightMapSettingsOg.Copy(scale.x * neighborPos.x, scale.x * neighborPos.y);
+        heightMapSettings = heightMapSettingsOg.Copy(offsetVector.x, offsetVector.y);
         TerrainData terrainData = CopyTerrainData(terrainDataOg);
 
         GameObject chunk = Instantiate(terrainChunk, new Vector3(worldPos.x, position1.y, worldPos.y), Quaternion.identity);
