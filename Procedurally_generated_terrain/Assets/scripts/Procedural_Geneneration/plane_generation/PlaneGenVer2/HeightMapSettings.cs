@@ -4,12 +4,23 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "HeightMapSettings", menuName = "Custom/HeightMapSettings")]
 public class HeightMapSettings : ScriptableObject
 {
+    public delegate void SettingsChangedDelegate();
+
+    public event SettingsChangedDelegate OnSettingsChanged;
+    
     [Tooltip("seed of the map")]
     public int seed;
     public float xMove;
     public float yMove;
     public LayerSettings[] layerSettings;
     
+    private void NotifySettingsChanged()
+    {
+        if (OnSettingsChanged != null)
+        {
+            OnSettingsChanged.Invoke();
+        }
+    }
     public HeightMapSettings Copy(float newXMove, float newYMove)
     {
         HeightMapSettings copy = Instantiate(this);
@@ -39,7 +50,6 @@ public class HeightMapSettings : ScriptableObject
 
         return copy;
     }
-
 }
 
 [System.Serializable]

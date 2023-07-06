@@ -4,26 +4,48 @@ using UnityEngine;
 using System.Threading.Tasks;
 using System.Threading;
 
+[ExecuteAlways]
 public class HeightMap : MonoBehaviour
 {
     [Tooltip("Executes script in OnValidate")]
     [SerializeField] private bool debug;
     [Tooltip("settings for heightMap")]
     [SerializeField] public HeightMapSettings heightMapSettings;
+    private HeightMapSettings prevHeightMapSettings;
     private Terrain terrain;
+
+    private void OnEnable()
+    {
+        if (heightMapSettings != null)
+            heightMapSettings.OnSettingsChanged += HandleSettingsChanged;
+    }
+
+    private void OnDisable()
+    {
+        if (heightMapSettings != null)
+            heightMapSettings.OnSettingsChanged -= HandleSettingsChanged;
+    }
+
+    private void HandleSettingsChanged()
+    {
+        Debug.Log("sdasdad");
+        if (debug)
+        {
+            terrain = GetComponent<Terrain>();
+            var terrainData = terrain.terrainData;
+            GenerateHeightMap();
+        }
+    }
+
     private void OnValidate()
     {
-        terrain = GetComponent<Terrain>();
         // Ensure heightMapSettings is not null
-        if (heightMapSettings == null)
-            heightMapSettings = new HeightMapSettings();
-
-        // // Initialize layerSettings array with the specified numberOfLayers
-        // if (heightMapSettings.layerSettings == null || heightMapSettings.layerSettings.Length != heightMapSettings.layerSettings.)
-        //     heightMapSettings.layerSettings = new LayerSettings[heightMapSettings.numberOfLayers];
+        // if (heightMapSettings == null)
+        //     heightMapSettings = new HeightMapSettings();
         
         if (debug)
         {
+            
             terrain = GetComponent<Terrain>();
             var terrainData = terrain.terrainData;
             GenerateHeightMap();
