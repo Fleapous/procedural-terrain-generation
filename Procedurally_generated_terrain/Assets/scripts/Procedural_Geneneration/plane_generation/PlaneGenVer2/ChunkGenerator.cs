@@ -12,6 +12,7 @@ public class ChunkGenerator : MonoBehaviour
     private Transform locationRayCaster;
     private RayCaster rayCaster;
     private HeightMapSettings heightMapSettingsOg;
+    private TerrainData terrainDataOg;
     private void Start()
     {
         var parent = transform.parent;
@@ -20,6 +21,7 @@ public class ChunkGenerator : MonoBehaviour
         locationRayCaster = GetComponentInChildren<Transform>();
         rayCaster = GetComponentInChildren<RayCaster>();
         heightMapSettingsOg = GetComponentInParent<HeightMap>().heightMapSettings;
+        terrainDataOg = GetComponentInParent<Terrain>().terrainData;
     }
 
     private void OnTriggerEnter(Collider other)
@@ -57,15 +59,59 @@ public class ChunkGenerator : MonoBehaviour
                 }
                 else
                 {
-                    HeightMapSettings heightMapSettings = ScriptableObject.CreateInstance<HeightMapSettings>();
-                    heightMapSettings = heightMapSettingsOg.Copy(scale.x * neighborPos.x, scale.x * neighborPos.y);
-                    
-                    GameObject chunk = Instantiate(terrainChunk, new Vector3(worldPos.x, position1.y, worldPos.y), Quaternion.identity);
-                    HeightMap script = chunk.GetComponent<HeightMap>();
-                    script.heightMapSettings = heightMapSettings;
+                    InstantiateNewChunk(scale, neighborPos, worldPos, position1);
                 }
                 k++;
             }
         }
+    }
+
+    private void InstantiateNewChunk(Vector3 scale, Vector2 neighborPos, Vector2 worldPos, Vector3 position1)
+    {
+        HeightMapSettings heightMapSettings = ScriptableObject.CreateInstance<HeightMapSettings>();
+        heightMapSettings = heightMapSettingsOg.Copy(scale.x * neighborPos.x, scale.x * neighborPos.y);
+        TerrainData terrainData = CopyTerrainData(terrainDataOg);
+
+        GameObject chunk = Instantiate(terrainChunk, new Vector3(worldPos.x, position1.y, worldPos.y), Quaternion.identity);
+        HeightMap script = chunk.GetComponent<HeightMap>();
+        script.heightMapSettings = heightMapSettings;
+
+        Terrain tmp = chunk.GetComponent<Terrain>();
+        tmp.terrainData = terrainData;
+
+        TerrainCollider terrainCollider = chunk.GetComponent<TerrainCollider>();
+        terrainCollider.terrainData = terrainData;
+    }
+
+    private TerrainData CopyTerrainData(TerrainData original)
+    {
+        TerrainData terrainData = new TerrainData();
+
+        // Copy desired properties from terrainDataOg to terrainData
+        var propertiesToCopy = new[]
+        {
+            "thickness", "splatPrototypes",
+            "treePrototypes", "treeInstances", "alphamapResolution",
+            "heightmapResolution","size"
+        };
+
+        foreach (var property in propertiesToCopy)
+        {
+            Debug.Log(property);
+            var sourceProperty = terrainDataOg.GetType().GetProperty(property);
+            var targetProperty = terrainData.GetType().GetProperty(property);
+            var value = sourceProperty.GetValue(terrainDataOg);
+            targetProperty.SetValue(terrainData, value);
+        }
+
+        // Recreate detail prototypes to match the new detail resolution
+        terrainData.SetDetailResolution(terrainDataOg.detailResolution, terrainDataOg.detailResolutionPerPatch);
+        terrainData.RefreshPrototypes();
+
+        // Reset the heightmap of the new terrain data
+        float[,] newHeightMap = new float[terrainData.heightmapResolution, terrainData.heightmapResolution];
+        terrainData.SetHeights(0, 0, newHeightMap);
+
+        return terrainData;
     }
 }

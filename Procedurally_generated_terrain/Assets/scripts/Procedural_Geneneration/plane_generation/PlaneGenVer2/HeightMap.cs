@@ -13,6 +13,7 @@ public class HeightMap : MonoBehaviour
     private Terrain terrain;
     private void OnValidate()
     {
+        terrain = GetComponent<Terrain>();
         // Ensure heightMapSettings is not null
         if (heightMapSettings == null)
             heightMapSettings = new HeightMapSettings();
@@ -23,6 +24,8 @@ public class HeightMap : MonoBehaviour
         
         if (debug)
         {
+            terrain = GetComponent<Terrain>();
+            var terrainData = terrain.terrainData;
             GenerateHeightMap();
         }
     }
@@ -31,15 +34,18 @@ public class HeightMap : MonoBehaviour
     {
         if (!debug)
         {
+            terrain = GetComponent<Terrain>();
+            var terrainData = terrain.terrainData;
             Debug.Log($"instance: {GetInstanceID()}, heighmap settings: {heightMapSettings.xMove} {heightMapSettings.yMove} {heightMapSettings.layerSettings.Length}");
             // Debug.Log(heightMapSettings.xMove + " " + heightMapSettings.yMove);
+
             GenerateHeightMap();
+            
         }
     }
 
     public async void GenerateHeightMap()
     {
-        terrain = GetComponent<Terrain>();
         int numberOfLayers = heightMapSettings.layerSettings.Length;
         int resolution = terrain.terrainData.heightmapResolution;
         float[,] finalMap = new float[resolution, resolution];
@@ -63,8 +69,8 @@ public class HeightMap : MonoBehaviour
                 finalMap[i, j] = CalculateHeight(i, j);
             }
         }
-        
         terrain.terrainData.SetHeights(0,0,finalMap);
+        // return finalMap;
     }
     public float CalculateHeight(int x, int y)
     {
