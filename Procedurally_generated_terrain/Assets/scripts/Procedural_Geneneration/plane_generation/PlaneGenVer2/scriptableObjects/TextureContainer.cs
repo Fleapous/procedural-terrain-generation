@@ -1,25 +1,19 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 [CreateAssetMenu(fileName = "New Texture Container", menuName = "Custom/Texture Container")]
 public class TextureContainer : ScriptableObject
 {
     public TextureLayer[] textures;
 
-    public float[] SetTextureValues(float height)
+    public float[] SetTextureValues(float height, float angle)
     {
         float[] textureValues = new float[textures.Length];
         for (int i = 0; i < textureValues.Length; i++)
         {
-            if (height >= textures[i].range.x && height <= textures[i].range.y)
-            {
-                textureValues[i] = 1;
-            }
-            else
-            {
-                textureValues[i] = 0;
-            }
+            textureValues[i] = textures[i].CalculateAlpha(height, angle);
         }
 
         return textureValues;
@@ -28,6 +22,24 @@ public class TextureContainer : ScriptableObject
 [System.Serializable]
 public class TextureLayer
 {
-    // public Texture2D texture2D;
-    public Vector2 range;
+    public bool enable;
+    public Vector2 heightRange;
+    public Vector2 angleRange;
+
+    public float CalculateAlpha(float height, float angle)
+    {
+        if (!enable)
+            return 0;
+
+        float alphaValue = 0;
+        if (height >= heightRange.x && height <= heightRange.y)
+        {
+            if (angle >= angleRange.x && angle <= angleRange.y)
+            {
+                alphaValue = 1;
+            }
+        }
+
+        return alphaValue;
+    }
 }

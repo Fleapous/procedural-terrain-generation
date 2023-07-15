@@ -14,27 +14,34 @@ public class TerrainMaker : MonoBehaviour
 
     [Tooltip("A container for terrain objects and textures")] [SerializeField]
     public TextureContainer textureContainer;
+
+    [HideInInspector] public static bool heightMapSettingsFoldOut;
+    [HideInInspector] public static bool textureSettingsFoldOut;
     
     private Terrain terrain;
     private void OnValidate()
     {
         if (debug)
         {
-            terrain = GetComponent<Terrain>();
-            GenerateHeightMap();
+            Initialize();
         }
     }
     private void Start()
     {
         if (!debug)
         {
-            terrain = GetComponent<Terrain>();
             Debug.Log($"instance: {GetInstanceID()}, heighmap settings: {heightMapSettings.xMove} {heightMapSettings.yMove} {heightMapSettings.layerSettings.Length}");
-            GenerateHeightMap();
-            SetTextures();
-            
+            Initialize();
         }
     }
+
+    public void Initialize()
+    {
+        terrain = GetComponent<Terrain>();
+        GenerateHeightMap();
+        SetTextures();
+    }
+
     private async void GenerateHeightMap()
     {
         int numberOfLayers = heightMapSettings.layerSettings.Length;
@@ -87,8 +94,10 @@ public class TerrainMaker : MonoBehaviour
         {
             for (int y = 0; y < terrainData.alphamapHeight; y++)
             {
-                float terrainHeight = terrainData.GetHeight(x, y);
-                float[] textureValues = textureContainer.SetTextureValues(terrainHeight);
+
+                float terrainHeight = terrainData.GetHeight(y, x);
+                float terrainAngle = terrainData.GetSteepness(y, x);
+                float[] textureValues = textureContainer.SetTextureValues(terrainHeight, terrainAngle);
                 for (int i = 0; i < textureContainer.textures.Length; i++)
                 {
                     splatmapData[x, y, i] = textureValues[i];

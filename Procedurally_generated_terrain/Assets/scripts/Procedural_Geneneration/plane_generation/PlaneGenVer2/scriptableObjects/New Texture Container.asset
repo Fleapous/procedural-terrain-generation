@@ -13,6 +13,9 @@ MonoBehaviour:
   m_Name: New Texture Container
   m_EditorClassIdentifier: 
   textures:
-  - range: {x: 0, y: 10}
-  - range: {x: 10, y: 70}
-  - range: {x: 70, y: 1000}
+  - enable: 1
+    heightRange: {x: 0, y: 76.14}
+    angleRange: {x: 0, y: 1000}
+  - enable: 1
+    heightRange: {x: 75, y: 1000}
+    angleRange: {x: 0, y: 10000}

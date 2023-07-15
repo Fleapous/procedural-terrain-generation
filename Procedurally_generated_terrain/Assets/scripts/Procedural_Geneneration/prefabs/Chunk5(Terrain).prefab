@@ -228,7 +228,7 @@ Terrain:
   m_DrawInstanced: 0
   m_DrawTreesAndFoliage: 1
   m_ReflectionProbeUsage: 1
-  m_MaterialTemplate: {fileID: 2100000, guid: 2eaf69d635aa54a219a3b18e9c7dd9af, type: 2}
+  m_MaterialTemplate: {fileID: 10652, guid: 0000000000000000f000000000000000, type: 0}
   m_BakeLightProbesForTrees: 1
   m_PreserveTreePrototypeLayers: 0
   m_DeringLightProbesForTrees: 1
@@ -262,3 +262,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   debug: 0
   heightMapSettings: {fileID: 11400000, guid: 32eec1809ee3d473996b5ccab9418c72, type: 2}
+  textureContainer: {fileID: 11400000, guid: 2c6400b3c2651447a94faa7e277dffbb, type: 2}
