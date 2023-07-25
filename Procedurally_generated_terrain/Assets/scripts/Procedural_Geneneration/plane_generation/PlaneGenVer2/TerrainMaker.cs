@@ -14,7 +14,7 @@ public class TerrainMaker : MonoBehaviour
 
     [Tooltip("A container for terrain objects and textures")] [SerializeField]
     public TextureContainer textureContainer;
-
+    
     [HideInInspector] public static bool heightMapSettingsFoldOut;
     [HideInInspector] public static bool textureSettingsFoldOut;
     
@@ -39,6 +39,7 @@ public class TerrainMaker : MonoBehaviour
     {
         terrain = GetComponent<Terrain>();
         GenerateHeightMap();
+        
         SetTextures();
     }
 
@@ -59,7 +60,7 @@ public class TerrainMaker : MonoBehaviour
                 heightMapSettings.seed));
         }
         await Task.WhenAll(tasks);
-        
+        Debug.Log("heightMap generated");
         for (int i = 0; i < resolution; i++)
         {
             for (int j = 0; j < resolution; j++)
@@ -96,12 +97,17 @@ public class TerrainMaker : MonoBehaviour
             {
 
                 float terrainHeight = terrainData.GetHeight(y, x);
-                float terrainAngle = terrainData.GetSteepness(y, x);
+                float terrainAngle = terrainData.GetSteepness((float)y / terrainData.alphamapWidth, (float)x/terrainData.alphamapHeight);
+                terrainAngle /= 90f;
+                // Debug.Log($"steepness: {terrainAngle / 90f}");
                 float[] textureValues = textureContainer.SetTextureValues(terrainHeight, terrainAngle);
                 for (int i = 0; i < textureContainer.textures.Length; i++)
                 {
                     splatmapData[x, y, i] = textureValues[i];
                 }
+
+                // splatmapData[x, y, 0] = 1;
+                // splatmapData[x, y, 1] = terrainAngle;
             }
         }
         terrainData.SetAlphamaps(0, 0, splatmapData);

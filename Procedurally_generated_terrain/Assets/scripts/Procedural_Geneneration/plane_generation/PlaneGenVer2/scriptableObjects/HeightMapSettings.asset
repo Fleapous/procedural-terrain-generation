@@ -26,7 +26,7 @@ MonoBehaviour:
     scale: 300.46
     octaves: 3
     persistence: 0.8
-    lacunarity: 0.16
+    lacunarity: 0.47
     amplificationConstant: 1
     heightScalar: 1
   - enable: 1
@@ -36,9 +36,9 @@ MonoBehaviour:
       m_PreInfinity: 0
       m_PostInfinity: 0
       m_RotationOrder: 0
-    scale: 900
+    scale: 861
     octaves: 7
     persistence: 0.42
     lacunarity: 2.29
     amplificationConstant: 10.93
-    heightScalar: 141.58
+    heightScalar: 149.9

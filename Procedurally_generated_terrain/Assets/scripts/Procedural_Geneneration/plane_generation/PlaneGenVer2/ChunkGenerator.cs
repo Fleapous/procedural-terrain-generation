@@ -12,6 +12,7 @@ public class ChunkGenerator : MonoBehaviour
     private Transform locationRayCaster;
     private RayCaster rayCaster;
     private HeightMapSettings heightMapSettingsOg;
+    private TextureContainer textureContainerOg;
     private TerrainData terrainDataOg;
     private void Start()
     {
@@ -21,6 +22,7 @@ public class ChunkGenerator : MonoBehaviour
         locationRayCaster = GetComponentInChildren<Transform>();
         rayCaster = GetComponentInChildren<RayCaster>();
         heightMapSettingsOg = GetComponentInParent<TerrainMaker>().heightMapSettings;
+        textureContainerOg = GetComponentInParent<TerrainMaker>().textureContainer;
         terrainDataOg = GetComponentInParent<Terrain>().terrainData;
     }
 
@@ -69,13 +71,19 @@ public class ChunkGenerator : MonoBehaviour
     private void InstantiateNewChunk(Vector2 neighborPos, Vector2 worldPos, Vector3 position1)
     {
         Vector2 offsetVector = neighborPos * (terrainDataOg.heightmapResolution - 1);
+        
         HeightMapSettings heightMapSettings = ScriptableObject.CreateInstance<HeightMapSettings>();
         heightMapSettings = heightMapSettingsOg.Copy(offsetVector.x, offsetVector.y);
+
+        TextureContainer textureContainer = ScriptableObject.CreateInstance<TextureContainer>();
+        textureContainer = textureContainerOg;
+        
         TerrainData terrainData = CopyTerrainData(terrainDataOg);
 
         GameObject chunk = Instantiate(terrainChunk, new Vector3(worldPos.x, position1.y, worldPos.y), Quaternion.identity);
         TerrainMaker script = chunk.GetComponent<TerrainMaker>();
         script.heightMapSettings = heightMapSettings;
+        script.textureContainer = textureContainer;
 
         Terrain tmp = chunk.GetComponent<Terrain>();
         tmp.terrainData = terrainData;

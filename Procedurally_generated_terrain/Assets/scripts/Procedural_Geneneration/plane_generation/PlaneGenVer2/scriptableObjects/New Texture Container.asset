@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   textures:
   - enable: 1
-    heightRange: {x: 0, y: 76.14}
-    angleRange: {x: 0, y: 1000}
+    heightRange: {x: 0, y: 500}
+    angleRange: {x: 0, y: 0.3}
   - enable: 1
-    heightRange: {x: 75, y: 1000}
-    angleRange: {x: 0, y: 10000}
+    heightRange: {x: 0, y: 1000}
+    angleRange: {x: 0.3, y: 1}
