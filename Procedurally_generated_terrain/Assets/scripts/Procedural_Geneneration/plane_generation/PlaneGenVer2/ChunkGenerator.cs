@@ -106,7 +106,7 @@ public class ChunkGenerator : MonoBehaviour
 
         foreach (var property in propertiesToCopy)
         {
-            Debug.Log(property);
+            // Debug.Log(property);
             var sourceProperty = terrainDataOg.GetType().GetProperty(property);
             var targetProperty = terrainData.GetType().GetProperty(property);
             var value = sourceProperty.GetValue(terrainDataOg);

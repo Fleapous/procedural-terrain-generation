@@ -30,7 +30,7 @@ public class TerrainMaker : MonoBehaviour
     {
         if (!debug)
         {
-            Debug.Log($"instance: {GetInstanceID()}, heighmap settings: {heightMapSettings.xMove} {heightMapSettings.yMove} {heightMapSettings.layerSettings.Length}");
+            //Debug.Log($"instance: {GetInstanceID()}, heighmap settings: {heightMapSettings.xMove} {heightMapSettings.yMove} {heightMapSettings.layerSettings.Length}");
             Initialize();
         }
     }
@@ -39,8 +39,6 @@ public class TerrainMaker : MonoBehaviour
     {
         terrain = GetComponent<Terrain>();
         GenerateHeightMap();
-        
-        SetTextures();
     }
 
     private async void GenerateHeightMap()
@@ -60,7 +58,7 @@ public class TerrainMaker : MonoBehaviour
                 heightMapSettings.seed));
         }
         await Task.WhenAll(tasks);
-        Debug.Log("heightMap generated");
+        //Debug.Log($"heightMap generated {terrain.terrainData.GetInstanceID()}");
         for (int i = 0; i < resolution; i++)
         {
             for (int j = 0; j < resolution; j++)
@@ -70,6 +68,7 @@ public class TerrainMaker : MonoBehaviour
         }
         terrain.terrainData.SetHeights(0,0,finalMap);
         // return finalMap;
+        SetTextures();
     }
     public float CalculateHeight(int x, int y)
     {
@@ -86,6 +85,7 @@ public class TerrainMaker : MonoBehaviour
 
     private void SetTextures()
     {
+        //Debug.Log($"inside set texture {terrain.terrainData.GetInstanceID()}");
         var terrainData = terrain.terrainData;
         float[,,] splatmapData = new float[terrainData.alphamapWidth,
                                             terrainData.alphamapHeight,
