@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5cf0eed7b16e84363ab7057494485ddd, type: 3}
   m_Name: HeightMapSettings
   m_EditorClassIdentifier: 
-  seed: 9
+  seed: 26
   xMove: 0.12
   yMove: 0.43
   layerSettings:
@@ -23,7 +23,7 @@ MonoBehaviour:
       m_PreInfinity: 0
       m_PostInfinity: 0
       m_RotationOrder: 0
-    scale: 300.46
+    scale: 300.43
     octaves: 3
     persistence: 0.8
     lacunarity: 0.47
@@ -36,7 +36,20 @@ MonoBehaviour:
       m_PreInfinity: 0
       m_PostInfinity: 0
       m_RotationOrder: 0
-    scale: 861
+    scale: 959.39
+    octaves: 7
+    persistence: 0.42
+    lacunarity: 2.29
+    amplificationConstant: 10.93
+    heightScalar: 97.6
+  - enable: 1
+    animationCurve:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 0
+      m_PostInfinity: 0
+      m_RotationOrder: 0
+    scale: 978.4
     octaves: 7
     persistence: 0.42
     lacunarity: 2.29

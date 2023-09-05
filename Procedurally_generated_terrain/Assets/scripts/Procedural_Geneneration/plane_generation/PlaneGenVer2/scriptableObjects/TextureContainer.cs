@@ -36,7 +36,7 @@ public class TextureLayer
         {
             if (angle >= angleRange.x && angle <= angleRange.y)
             {
-                alphaValue = 1;
+                alphaValue = angle;
             }
         }
 
